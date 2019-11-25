@@ -3,8 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "node-vibrant": "^3.1.4",
+    "p5": "^0.10.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "react-p5": "^1.1.8",
+    "react-p5-wrapper": "^2.0.0",
     "react-scripts": "3.2.0"
   },
   "scripts": {

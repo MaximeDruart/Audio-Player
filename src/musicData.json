@@ -1,0 +1,35 @@
+{
+    "tracks": [{
+            "cover": "cover01",
+            "file": "audios/audio01.mp3",
+            "duration": "duration01",
+            "artistName": "artist01",
+            "title": "title01",
+            "album" : "album01"
+        },
+        {
+            "cover": "cover02",
+            "file": "audios/audio02.mp3",
+            "duration": "duration02",
+            "artistName": "artist02",
+            "title": "title02",
+            "album" : "album02"
+        },
+        {
+            "cover": "cover03",
+            "file": "audios/audio03.mp3",
+            "duration": "duration03",
+            "artistName": "artist03",
+            "title": "title03",
+            "album" : "album03"
+        },
+        {
+            "cover": "cover04",
+            "file": "audios/audio04.mp3",
+            "duration": "duration04",
+            "artistName": "artist04",
+            "title": "title04",
+            "album" : "album04"
+        }
+    ]
+}

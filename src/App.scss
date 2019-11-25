@@ -1,0 +1,249 @@
+*{
+    box-sizing: border-box;
+}
+
+body{
+    padding:0;
+    margin:0;
+    font-family: vcr;
+}
+
+
+@mixin fullParentSize {
+    width:100%;
+    height:100%;
+}
+
+@mixin abs00 {
+    position: absolute;
+    top:0;
+    left:0;
+}
+
+@font-face {
+    font-family: vcr;
+    src: url("./VCR_OSD_MONO_1.001.ttf");
+}
+
+$dark-blue :#191A23;
+$card-background : #282F37;
+$card-background-light : #313A44;
+$card-light : #6D7C8E;
+$card-font : #DFDFDF;
+$muted-card-font : #AAAAAA;
+
+.container{
+    width:100%;
+    height: 100vh;
+    display : flex;
+    justify-content: center;
+    align-items: center;
+
+    .background{
+        z-index: -10;
+        @include fullParentSize();
+        @include abs00();
+
+        .bgImage{
+            @include fullParentSize();
+            @include abs00();
+            z-index:-1
+        }
+
+        .bgFilter{
+            @include fullParentSize();
+            @include abs00();
+            background-color:$dark-blue;
+            opacity: 0.85;
+        }
+    }
+    
+    .musicPlayer{
+        width:50%;
+        height: 60%;
+        border:1px solid black;
+        display: grid;
+        grid-template-rows: 100%;
+        grid-template-columns: repeat(10, 10%);
+        align-items: center;
+
+        #visualizer{
+            z-index: 10;
+            grid-row: 1;
+            grid-column: 1;
+            border-radius: 50%;
+            border:1px solid black;
+            width:20vw;
+            height:20vw;
+        }
+    
+        .card{
+            position: relative;
+            padding-left: 32%;
+            grid-row: 1;
+            grid-column: 3 / 11;
+            height: 60%;
+            background-color: $card-background;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 1px 3px 6px rgba(0,0,0,0.2);
+
+            .flex-wrap{
+                display: flex;
+                flex-flow: column nowrap;
+                justify-content: space-around;
+                align-items: flex-start;
+                height:80%;
+                width:80%;
+
+                .info {
+                    width: 100%;
+                    height: 30%;
+                    .artist, .title, .album{
+                        text-transform: uppercase;
+                        color: $card-font;
+                        font-size: 35px;
+                    }
+                    .album{
+                        color: $muted-card-font;
+                        font-size: 25px;
+                    }
+                }
+    
+                .controls{
+                    align-self: center;
+                    display: flex;
+                    flex-flow: row nowrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    width: 95%;
+                    height:25%;
+                }
+
+                .progressBar{
+                    position: relative;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    width:100%;
+                    height:25px;
+                    background-color: $card-background-light;
+                    border-radius:10px;
+                    overflow: hidden;
+
+                    .actualTime, .totalTime{
+                        color: $card-font;
+                        z-index: 10;
+                        font-size: 18px;
+                    }
+
+                    .actualTime{
+                        margin-left: 15px;
+                    }
+
+                    .totalTime{
+                        margin-right: 15px;
+                    }
+                    .timeProgression{
+                        @include abs00();
+                        height: 100%;
+                        width:0%;
+                        background-color: $card-light;
+                        border-radius:10px;
+                    }
+                }
+            }
+
+            .playlist{
+                display: flex;
+                flex-flow: column nowrap;
+                justify-content: space-around;
+                align-items: flex-start;
+                height:80%;
+                width:80%;
+                color: $card-font;
+
+                .playlistElement{
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    width:100%;
+                    background-color: $card-background-light;
+                    border-radius: 16px;
+                    height: 40px;
+                    box-shadow: 1px 3px 6px rgba(0,0,0,0.2);
+                    font-size: 18px;
+                    overflow: hidden;
+
+                    .left{
+                        z-index: 2;
+                        display: flex;
+                        flex-flow: row nowrap;
+                        margin-left: 15px;
+
+                        .artist{
+                            text-transform: uppercase;
+                        }
+                    }
+
+                    .duration{
+                        margin-right: 15px;
+                    }
+
+                    .artist, .title, .duration{
+                        z-index: 2;
+                        font-size: 22px;
+                    }
+
+                    .timeProgression{
+                        @include abs00();
+                        width:50%;
+                        height:100%;
+                        background-color: $card-light;
+                        border-radius: 13px;
+                    }
+                }
+            }
+
+            .playlistSwitch {
+                position: absolute;
+                top:10%;
+                right:5%;
+                transform: rotate(-90deg);
+                cursor: pointer;
+                color: $card-font;
+            }
+
+            .volume{
+                position: absolute;
+                top:50%;
+                right:-12px;
+                transform : translateY(-50%);
+                height:90%;
+                width:25px;
+                background-color: $card-background-light;
+                border-radius:10px;
+                overflow: hidden;
+
+                .volumeProgression{
+                    @include abs00();
+                    transform: rotate(180deg) translateY(-50%);
+                    height:100%;
+                    width:100%;
+                    border-radius: 10px;
+                    background-color: $card-light;
+                    display: flex;
+                    padding-bottom: 12px;
+
+                    .volumePercentage{
+                        align-self: flex-end;
+                        margin-left: -4px;
+                        transform: rotate(-90deg);
+                    }
+                }
+            }
+        }
+    }
+}
