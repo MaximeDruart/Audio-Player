@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/Audio-Player/static/css/main.ba66b4a8.chunk.css",
+    "main.js": "/Audio-Player/static/js/main.a9dc468a.chunk.js",
+    "main.js.map": "/Audio-Player/static/js/main.a9dc468a.chunk.js.map",
+    "runtime-main.js": "/Audio-Player/static/js/runtime-main.f45643d4.js",
+    "runtime-main.js.map": "/Audio-Player/static/js/runtime-main.f45643d4.js.map",
+    "static/js/2.7f2f8ac8.chunk.js": "/Audio-Player/static/js/2.7f2f8ac8.chunk.js",
+    "static/js/2.7f2f8ac8.chunk.js.map": "/Audio-Player/static/js/2.7f2f8ac8.chunk.js.map",
+    "index.html": "/Audio-Player/index.html",
+    "precache-manifest.6add5f94a85469e2502b07abdf53a937.js": "/Audio-Player/precache-manifest.6add5f94a85469e2502b07abdf53a937.js",
+    "service-worker.js": "/Audio-Player/service-worker.js",
+    "static/css/main.ba66b4a8.chunk.css.map": "/Audio-Player/static/css/main.ba66b4a8.chunk.css.map",
+    "static/media/App.css": "/Audio-Player/static/media/VCR_OSD_MONO_1.001.5fcd6c65.ttf"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.f45643d4.js",
+    "static/js/2.7f2f8ac8.chunk.js",
+    "static/css/main.ba66b4a8.chunk.css",
+    "static/js/main.a9dc468a.chunk.js"
+  ]
+}
