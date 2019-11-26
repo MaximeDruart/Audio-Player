@@ -29,6 +29,16 @@ body {
       top: 0;
       left: 0;
       z-index: -1; }
+      .container .background .bgImage.bgTransition-enter {
+        opacity: 0.01; }
+      .container .background .bgImage.bgTransition-enter.bgTransition-enter-active {
+        opacity: 1;
+        transition: opacity 500ms ease-in; }
+      .container .background .bgImage.bgTransition-leave {
+        opacity: 1; }
+      .container .background .bgImage.bgTransition-leave.bgTransition-leave-active {
+        opacity: 0.01;
+        transition: opacity 300ms ease-in; }
     .container .background .bgFilter {
       width: 100%;
       height: 100%;
@@ -89,6 +99,12 @@ body {
           align-items: center;
           width: 95%;
           height: 25%; }
+          .container .musicPlayer .card .flex-wrap .controls .before, .container .musicPlayer .card .flex-wrap .controls .next, .container .musicPlayer .card .flex-wrap .controls .playPause {
+            height: 25px;
+            cursor: pointer; }
+          .container .musicPlayer .card .flex-wrap .controls .before {
+            transform-origin: center;
+            transform: rotate(180deg); }
         .container .musicPlayer .card .flex-wrap .progressBar {
           position: relative;
           display: flex;
@@ -114,54 +130,91 @@ body {
             height: 100%;
             width: 0%;
             background-color: #6D7C8E;
-            border-radius: 10px; }
+            border-radius: 10px;
+            transition: all 0.6s ease-in-out; }
       .container .musicPlayer .card .playlist {
         display: flex;
         flex-flow: column nowrap;
         justify-content: space-around;
         align-items: flex-start;
         height: 80%;
-        width: 80%;
+        width: 100%;
         color: #DFDFDF; }
+        .container .musicPlayer .card .playlist.playlist-pop-enter {
+          opacity: 0.01; }
+          .container .musicPlayer .card .playlist.playlist-pop-enter.playlist-pop-enter-active {
+            opacity: 1;
+            transition: opacity 500ms ease-in-out; }
+        .container .musicPlayer .card .playlist.playlist-pop-leave {
+          opacity: 1; }
+          .container .musicPlayer .card .playlist.playlist-pop-leave.playlist-pop-leave-active {
+            opacity: 0.01;
+            transition: opacity 500ms ease-in-out; }
         .container .musicPlayer .card .playlist .playlistElement {
-          position: relative;
           display: flex;
+          flex-flow: row nowrap;
+          height: 50px;
           align-items: center;
           justify-content: space-between;
-          width: 100%;
-          background-color: #313A44;
-          border-radius: 16px;
-          height: 40px;
-          box-shadow: 1px 3px 6px rgba(0, 0, 0, 0.2);
-          font-size: 18px;
-          overflow: hidden; }
-          .container .musicPlayer .card .playlist .playlistElement .left {
-            z-index: 2;
+          width: 83%; }
+          .container .musicPlayer .card .playlist .playlistElement .playButton {
+            cursor: pointer;
+            height: 30px;
+            margin-right: 10px; }
+          .container .musicPlayer .card .playlist .playlistElement .playlistWrap {
+            position: relative;
             display: flex;
-            flex-flow: row nowrap;
-            margin-left: 15px; }
-            .container .musicPlayer .card .playlist .playlistElement .left .artist {
-              text-transform: uppercase; }
-          .container .musicPlayer .card .playlist .playlistElement .duration {
-            margin-right: 15px; }
-          .container .musicPlayer .card .playlist .playlistElement .artist, .container .musicPlayer .card .playlist .playlistElement .title, .container .musicPlayer .card .playlist .playlistElement .duration {
-            z-index: 2;
-            font-size: 22px; }
-          .container .musicPlayer .card .playlist .playlistElement .timeProgression {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 50%;
-            height: 100%;
-            background-color: #6D7C8E;
-            border-radius: 13px; }
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            background-color: #313A44;
+            border-radius: 16px;
+            height: 80%;
+            box-shadow: 1px 3px 6px rgba(0, 0, 0, 0.2);
+            font-size: 18px;
+            overflow: hidden; }
+            .container .musicPlayer .card .playlist .playlistElement .playlistWrap .left {
+              z-index: 2;
+              display: flex;
+              flex-flow: row nowrap;
+              margin-left: 15px;
+              width: 73%; }
+              .container .musicPlayer .card .playlist .playlistElement .playlistWrap .left .artist, .container .musicPlayer .card .playlist .playlistElement .playlistWrap .left .title {
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                word-wrap: break-word;
+                overflow: hidden;
+                max-height: 1.8em;
+                line-height: 1.8em; }
+              .container .musicPlayer .card .playlist .playlistElement .playlistWrap .left .artist {
+                text-transform: uppercase;
+                width: 47%; }
+              .container .musicPlayer .card .playlist .playlistElement .playlistWrap .left .title {
+                width: 33%; }
+            .container .musicPlayer .card .playlist .playlistElement .playlistWrap .duration {
+              margin-right: 15px;
+              width: 20%; }
+            .container .musicPlayer .card .playlist .playlistElement .playlistWrap .artist, .container .musicPlayer .card .playlist .playlistElement .playlistWrap .title, .container .musicPlayer .card .playlist .playlistElement .playlistWrap .duration {
+              z-index: 2;
+              font-size: 22px; }
+            .container .musicPlayer .card .playlist .playlistElement .playlistWrap .timeProgression {
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 50%;
+              height: 100%;
+              background-color: #6D7C8E;
+              border-radius: 13px;
+              transition: all 0.2s ease-in-out; }
       .container .musicPlayer .card .playlistSwitch {
         position: absolute;
         top: 10%;
-        right: 5%;
+        right: 6%;
         transform: rotate(-90deg);
+        transform-origin: right;
         cursor: pointer;
-        color: #DFDFDF; }
+        color: #DFDFDF;
+        font-size: 22px; }
       .container .musicPlayer .card .volume {
         position: absolute;
         top: 50%;
@@ -172,6 +225,12 @@ body {
         background-color: #313A44;
         border-radius: 10px;
         overflow: hidden; }
+        .container .musicPlayer .card .volume * {
+          pointer-events: none; }
+        .container .musicPlayer .card .volume .volumeIcon {
+          width: 80%;
+          margin-top: 5px;
+          margin-left: 2px; }
         .container .musicPlayer .card .volume .volumeProgression {
           position: absolute;
           top: 0;

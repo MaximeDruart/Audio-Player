@@ -1,35 +1,35 @@
 {
     "tracks": [{
-            "cover": "cover01",
+            "cover": "covers/cover01.jpg",
             "file": "audios/audio01.mp3",
             "duration": "duration01",
-            "artistName": "artist01",
-            "title": "title01",
-            "album" : "album01"
+            "artistName": "evigt morker",
+            "title": "högre",
+            "album" : "1"
         },
         {
-            "cover": "cover02",
+            "cover": "covers/cover02.jpg",
             "file": "audios/audio02.mp3",
             "duration": "duration02",
-            "artistName": "artist02",
-            "title": "title02",
-            "album" : "album02"
+            "artistName": "park hye jin",
+            "title": "be a star",
+            "album" : "Untitled"
         },
         {
-            "cover": "cover03",
+            "cover": "covers/cover03.jpg",
             "file": "audios/audio03.mp3",
             "duration": "duration03",
-            "artistName": "artist03",
-            "title": "title03",
-            "album" : "album03"
+            "artistName": "kokoroko",
+            "title": "abusey junction",
+            "album" : "we out here"
         },
         {
-            "cover": "cover04",
+            "cover": "covers/cover04.jpg",
             "file": "audios/audio04.mp3",
             "duration": "duration04",
-            "artistName": "artist04",
-            "title": "title04",
-            "album" : "album04"
+            "artistName": "hiroshi yoshimura",
+            "title": "blink",
+            "album" : "music for nine postcards"
         }
     ]
 }

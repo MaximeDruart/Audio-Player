@@ -47,7 +47,25 @@ $muted-card-font : #AAAAAA;
         .bgImage{
             @include fullParentSize();
             @include abs00();
-            z-index:-1
+            z-index:-1;
+
+            &.bgTransition-enter {
+                opacity: 0.01;
+            }
+
+            &.bgTransition-enter.bgTransition-enter-active {
+                opacity: 1;
+                transition: opacity 500ms ease-in;
+            }
+
+            &.bgTransition-leave {
+                opacity: 1;
+            }
+
+            &.bgTransition-leave.bgTransition-leave-active {
+                opacity: 0.01;
+                transition: opacity 300ms ease-in;
+            }
         }
 
         .bgFilter{
@@ -119,6 +137,16 @@ $muted-card-font : #AAAAAA;
                     align-items: center;
                     width: 95%;
                     height:25%;
+
+                    .before, .next, .playPause{
+                        height:25px;
+                        cursor: pointer;
+                    }
+
+                    .before{
+                        transform-origin: center;
+                        transform: rotate(180deg);
+                    }
                 }
 
                 .progressBar{
@@ -131,7 +159,7 @@ $muted-card-font : #AAAAAA;
                     background-color: $card-background-light;
                     border-radius:10px;
                     overflow: hidden;
-
+                    
                     .actualTime, .totalTime{
                         color: $card-font;
                         z-index: 10;
@@ -141,7 +169,7 @@ $muted-card-font : #AAAAAA;
                     .actualTime{
                         margin-left: 15px;
                     }
-
+                    
                     .totalTime{
                         margin-right: 15px;
                     }
@@ -151,6 +179,7 @@ $muted-card-font : #AAAAAA;
                         width:0%;
                         background-color: $card-light;
                         border-radius:10px;
+                        transition : all 0.6s ease-in-out;
                     }
                 }
             }
@@ -161,48 +190,102 @@ $muted-card-font : #AAAAAA;
                 justify-content: space-around;
                 align-items: flex-start;
                 height:80%;
-                width:80%;
+                width:100%;
                 color: $card-font;
 
+                &.playlist-pop-enter{
+                    opacity:0.01;
+
+                    &.playlist-pop-enter-active {
+                        opacity:1;
+                        transition: opacity 500ms ease-in-out;
+                    }
+                }
+
+                &.playlist-pop-leave {
+                    opacity: 1;
+
+                    &.playlist-pop-leave-active {
+                        opacity:0.01;
+                        transition: opacity 500ms ease-in-out;
+                    }
+                }
+                
+
                 .playlistElement{
-                    position: relative;
-                    display: flex;
+                    display : flex;
+                    flex-flow: row nowrap;
+                    height : 50px;
                     align-items: center;
                     justify-content: space-between;
-                    width:100%;
-                    background-color: $card-background-light;
-                    border-radius: 16px;
-                    height: 40px;
-                    box-shadow: 1px 3px 6px rgba(0,0,0,0.2);
-                    font-size: 18px;
-                    overflow: hidden;
+                    width:83%;
 
-                    .left{
-                        z-index: 2;
+                    .playButton{
+                        cursor: pointer;
+                        height:30px;
+                        margin-right:10px;
+                    }
+
+                    .playlistWrap{
+                        position: relative;
                         display: flex;
-                        flex-flow: row nowrap;
-                        margin-left: 15px;
+                        align-items: center;
+                        justify-content: space-between;
+                        width:100%;
+                        background-color: $card-background-light;
+                        border-radius: 16px;
+                        height: 80%;
+                        box-shadow: 1px 3px 6px rgba(0,0,0,0.2);
+                        font-size: 18px;
+                        overflow: hidden;
+    
+                        .left{ 
+                            z-index: 2;
+                            display: flex;
+                            flex-flow: row nowrap;
+                            margin-left: 15px;
+                            width: 73%;
 
-                        .artist{
-                            text-transform: uppercase;
+                            .artist, .title{
+                                white-space: nowrap;
+                                text-overflow: ellipsis;
+                                word-wrap: break-word;
+                                overflow: hidden;
+                                max-height: 1.8em;
+                                line-height: 1.8em;
+                            }
+
+                            .artist{
+                                text-transform: uppercase;
+                                width:47%;
+                            }
+
+                            .title{
+                                width:33%;
+                            }
+    
                         }
-                    }
+    
+                        .duration{
+                            margin-right: 15px;
+                            width:20%;
+                        }
+    
+                        .artist, .title, .duration{
+                            z-index: 2;
+                            font-size: 22px;
 
-                    .duration{
-                        margin-right: 15px;
-                    }
+                        }
+    
+                        .timeProgression{
+                            @include abs00();
+                            width:50%;
+                            height:100%;
+                            background-color: $card-light;
+                            border-radius: 13px;
+                            transition:all 0.2s ease-in-out;
+                        }
 
-                    .artist, .title, .duration{
-                        z-index: 2;
-                        font-size: 22px;
-                    }
-
-                    .timeProgression{
-                        @include abs00();
-                        width:50%;
-                        height:100%;
-                        background-color: $card-light;
-                        border-radius: 13px;
                     }
                 }
             }
@@ -210,10 +293,12 @@ $muted-card-font : #AAAAAA;
             .playlistSwitch {
                 position: absolute;
                 top:10%;
-                right:5%;
+                right:6%;
                 transform: rotate(-90deg);
+                transform-origin: right;
                 cursor: pointer;
                 color: $card-font;
+                font-size: 22px;
             }
 
             .volume{
@@ -226,6 +311,16 @@ $muted-card-font : #AAAAAA;
                 background-color: $card-background-light;
                 border-radius:10px;
                 overflow: hidden;
+
+                *{
+                    pointer-events: none;
+                }
+
+                .volumeIcon{
+                    width:80%;
+                    margin-top: 5px;
+                    margin-left: 2px;
+                }
 
                 .volumeProgression{
                     @include abs00();
