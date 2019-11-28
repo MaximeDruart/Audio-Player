@@ -56,6 +56,7 @@ body {
     grid-template-columns: repeat(10, 10%);
     align-items: center; }
     .container .musicPlayer #visualizer {
+      position: relative;
       z-index: 10;
       grid-row: 1;
       grid-column: 1;
@@ -63,6 +64,34 @@ body {
       border: 1px solid black;
       width: 20vw;
       height: 20vw; }
+      .container .musicPlayer #visualizer .cover {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        overflow: hidden;
+        width: 70%;
+        height: 70%;
+        transition: all 600ms ease-in-out; }
+        .container .musicPlayer #visualizer .cover.cover-appear {
+          width: 5%;
+          height: 5%; }
+          .container .musicPlayer #visualizer .cover.cover-appear.cover-appear-active {
+            width: 70%;
+            height: 70%; }
+        .container .musicPlayer #visualizer .cover.cover-enter {
+          width: 5%;
+          height: 5%; }
+          .container .musicPlayer #visualizer .cover.cover-enter.cover-enter-active {
+            width: 70%;
+            height: 70%; }
+        .container .musicPlayer #visualizer .cover.cover-leave {
+          width: 5%;
+          height: 5%; }
+          .container .musicPlayer #visualizer .cover.cover-leave.cover-leave-active {
+            width: 70%;
+            height: 70%; }
     .container .musicPlayer .card {
       position: relative;
       padding-left: 32%;
@@ -115,6 +144,9 @@ body {
           background-color: #313A44;
           border-radius: 10px;
           overflow: hidden; }
+          .container .musicPlayer .card .flex-wrap .progressBar * {
+            pointer-events: none;
+            user-select: none; }
           .container .musicPlayer .card .flex-wrap .progressBar .actualTime, .container .musicPlayer .card .flex-wrap .progressBar .totalTime {
             color: #DFDFDF;
             z-index: 10;
@@ -226,7 +258,8 @@ body {
         border-radius: 10px;
         overflow: hidden; }
         .container .musicPlayer .card .volume * {
-          pointer-events: none; }
+          pointer-events: none;
+          user-select: none; }
         .container .musicPlayer .card .volume .volumeIcon {
           width: 80%;
           margin-top: 5px;

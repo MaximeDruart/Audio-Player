@@ -10,13 +10,12 @@ import musicSymbol from './music.svg'
 import nextSymbol from './next.svg'
 import {CSSTransitionGroup} from 'react-transition-group'
 
-
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = { 
       visualizer : "",
-      visRadius : 100,
+      visRadius : "",
       musicData : "",
       canvasSize : {
         width : "",
@@ -28,6 +27,7 @@ class App extends Component {
       currentMusicTime : 0,
       volume : 0.5,
       audios:[],
+      coverColor : "white"
      }
      this.$visualizer = React.createRef()
      this.audios = []
@@ -46,9 +46,9 @@ class App extends Component {
 
   getSongsDuration = () => {
     let tempData = this.state.musicData
-    this.state.musicData.tracks.forEach((track, index) => {
-      let audio = new Audio(tempData.tracks[index].file)
-      tempData.tracks[index].duration = audio.duration
+    this.state.musicData.forEach((track, index) => {
+      let audio = new Audio(tempData[index].file)
+      tempData[index].duration = audio.duration
     })
     this.setState({ musicData: tempData });
   }
@@ -65,16 +65,20 @@ class App extends Component {
     let waveform
 
     p.preload = () => {
-      this.state.musicData.tracks.forEach(track => {
+      this.state.musicData.forEach(track => {
         this.audios.push(p.loadSound(track.file))
         this.covers.push(p.loadImage(track.cover))
       })
     }
 
     p.setup = () => {      
+      this.getCoverColor()
       this.setState({ fileIsLoaded: true, audios:this.audios })
       let {width, height} = this.$visualizer.current.getBoundingClientRect()
-      this.setState({ canvasSize: {width : width, height : height} });
+      this.setState({
+        canvasSize: {width : width, height : height},
+        visRadius : (width * 0.7 ) / 2
+      })
       p.createCanvas(width, height).parent('visualizer')
       fft = new p5.FFT(0.9, 256)
       p.frameRate(60)
@@ -82,31 +86,57 @@ class App extends Component {
 
     p.draw = () => {
       p.angleMode(p.DEGREES)
-      p.background(255)
+      p.clear()
+      p.noStroke()
       spectrum = fft.analyze()
       waveform = fft.waveform()
-      p.translate(this.state.canvasSize.width / 2, this.state.canvasSize.height / 2);
+      p.translate(this.state.canvasSize.width / 2, this.state.canvasSize.height / 2)
+      p.rotate(60)
       p.beginShape()
       if (spectrum[spectrum.length - 1] === 0) p.vertex(this.state.visRadius, 0)
       spectrum.forEach((value, index) => {
         let angle = p.map(index, 0, spectrum.length, 0, 360)
-        let waveformMultiplier = p.map(waveform[index], -1, 1, 1, 1.05)
-        let minimum = this.state.visRadius * waveformMultiplier
-        let valueCopy = p.map(value, 0, 255, minimum, 270)
+        let valueCopy = p.map(value, 0, 255, this.state.visRadius, this.state.canvasSize.width * 0.6)
         let cosVal = valueCopy * p.cos(angle)
         let sinVal = valueCopy * p.sin(angle)
+        p.fill(this.state.coverColor)
         p.vertex(cosVal, sinVal)
         // line(0, 0, cosVal, sinVal)
-        // p.fill("red")
         // p.rect(0, 0, 10, valueCopy)
         // p.rotate(angle)
       })
       p.endShape()
-    }
-  }
 
-  toggleAudio = (trackNbParam = "noparam") => {
-    let trackNumber
+      
+      p.beginShape()
+      spectrum.forEach((value, index)=> {
+          let angle = p.map(index, 0, spectrum.length, 0, 360)
+          let waveformMultiplier = p.map(waveform[index], -1, 1, 1, 1.05)
+          let minimum = this.state.visRadius * waveformMultiplier * 1.05
+          let x = p.cos(angle)*minimum
+          let y = p.sin(angle)*minimum
+          p.vertex(x, y)
+          // p.push()
+          p.fill("black")
+          p.ellipse(0, 0, minimum, minimum)
+          // p.pop()
+        })
+        p.endShape()
+    }
+
+    p.windowResized = () => {
+      let { width, height } = this.$visualizer.current.getBoundingClientRect()
+      this.setState({
+        canvasSize: { width: width, height: height },
+        visRadius: (width * 0.7) / 2
+      })
+      p.resizeCanvas(width, height)
+    }
+
+  }
+    
+    toggleAudio = (trackNbParam = "noparam") => {
+      let trackNumber
     if (trackNbParam === "noparam") {
       trackNumber = this.state.activeTrack
     } else {
@@ -126,6 +156,8 @@ class App extends Component {
           return { audios: prevState.audios };
         });
       } else {
+        console.log("play Toggle");
+        
         this.state.audios[trackNumber].play()      
         this.setState(prevState => {
           return { audios: prevState.audios };
@@ -144,9 +176,35 @@ class App extends Component {
     this.state.audios[this.state.activeTrack].setVolume(relativePos)
   }
 
+
+  getCoverColor = () => {
+    console.log(this.state.musicData[this.state.activeTrack].cover)
+    Vibrant.from(this.state.musicData[this.state.activeTrack].cover).getPalette()
+    .then((palette) => this.setState({ coverColor : palette.LightVibrant.getRgb() }))
+  }
+
+  changeSongMoment = event => {
+    let { target, clientX } = event
+    let { width, x } = target.getBoundingClientRect()
+    let relativePos = clientX - x
+    relativePos /= width
+    if (this.state.audios[this.state.activeTrack]) {
+      this.killAudios()  
+      let songCMT = parseInt(relativePos * this.state.audios[this.state.activeTrack].duration())
+      this.setState({ currentMusicTime: songCMT })
+      this.state.audios[this.state.activeTrack].stop()
+      this.state.audios[this.state.activeTrack].jump(songCMT)
+      console.log(songCMT, this.state.audios[this.state.activeTrack].currentTime());
+      setTimeout(() => {
+        console.log(this.state.audios[this.state.activeTrack].currentTime());
+        
+      }, 500);
+    }
+  }
+
   changeSong(direction){
     let canChangePrevious = direction === "previous" && this.state.activeTrack >= 1
-    let canChangeNext = direction === "next" && this.state.activeTrack < this.state.musicData.tracks.length - 1
+    let canChangeNext = direction === "next" && this.state.activeTrack < this.state.musicData.length - 1
     this.setState(prevState => {
       if (canChangePrevious) {
         return { activeTrack: prevState.activeTrack-1 };
@@ -156,30 +214,36 @@ class App extends Component {
         }
       }
     })
-
+    
     // c'est ghetto mais jsp pas pourquoi il y a un délai sur la modif de state au dessus
-    if (canChangeNext || canChangePrevious) {
-      this.state.audios.forEach((audio, index) => {
-        if (canChangeNext) {
-          if (index !== this.state.activeTrack+1) {
-            audio.jump(0)
-            audio.stop()
-          } else {
-            audio.jump(0)
-            audio.play()
+    setTimeout(() => {
+      if (canChangeNext || canChangePrevious) {
+        this.getCoverColor()
+        this.state.audios.forEach((audio, index) => {
+          if (canChangeNext) {
+            if (index !== this.state.activeTrack) {
+              audio.jump(0)
+              audio.stop()
+            } else {
+              audio.jump(0)
+              audio.fade(this.state.volume, 5)
+              console.log("play 0");
+              
+            }
+          } else if (canChangePrevious) {
+            if (index !== this.state.activeTrack) {
+              audio.jump(0)
+              audio.stop()
+            } else {
+              audio.jump(0)
+              audio.fade(this.state.volume, 5)
+              console.log("play 1");
+              
+            }
           }
-        }
-        if (canChangePrevious) {
-          if (index !== this.state.activeTrack-1) {
-            audio.jump(0)
-            audio.stop()
-          } else {
-            audio.jump(0)
-            audio.play()
-          }
-        }
-      })
-    }
+        })
+      }
+    }, 120);
   }
   
 
@@ -187,14 +251,16 @@ class App extends Component {
   componentDidMount() {
     this.setState({ visualizer: new p5(this.sketch) });
     this.getData()
+    this.keyboardEventsHandler()
 
     this.interval = setInterval(() => {
-      if (this.state.audios[this.state.activeTrack] && this.state.audios[this.state.activeTrack].isPlaying()) { 
-        this.setState({ currentMusicTime: parseInt(this.state.audios[this.state.activeTrack].currentTime()) });
+      if (this.state.audios[this.state.activeTrack]) { 
+        console.table(this.state.audios[this.state.activeTrack].currentTime(), this.state.currentMusicTime, this.state.audios[this.state.activeTrack].isPlaying());
+        if (this.state.audios[this.state.activeTrack].isPlaying()) {
+          this.setState({ currentMusicTime: parseInt(this.state.audios[this.state.activeTrack].currentTime()) });
+        }
       }
-    }, 1000);    
-
-    // this.getSongsDuration() // need to get all audio files first for this fn to work
+    }, 10)
   }
 
   componentWillUnmount(){
@@ -204,29 +270,74 @@ class App extends Component {
 
   playlistSwitch = () => {
     if (this.state.activeScreen === "nowPlaying") {
-      this.setState({ activeScreen: "playlist" });
+      this.setState({ activeScreen: "playlist" })
     } else {
-      this.setState({ activeScreen: "nowPlaying" });
+      this.setState({ activeScreen: "nowPlaying" }) 
     }
   }
 
-  keyboardEventsHandler = () => {
-    document.addEventListener('keyboard', event => {
-      switch (event.code) {
-        case "arrowRight":
-          
-          break;
-      
-        case "arrowLeft":
+  killAudios = () => {
+    // let audioTemp = this.state.audios
+    // this.state.audios.forEach((audio, index) => {
+    //   audio.stop()
+    // })
+    this.state.audios[this.state.activeTrack].stop()
+    // this.setState({ audios: audioTemp  });
+  }
 
-          break;
-
-        case "arrowUp":
-          break;
-        case "arrowDown":
-          break;
-        default:
-          break;
+  keyboardEventsHandler = () => {   
+    
+    window.addEventListener('keydown', event => {
+      if (this.state.audios[this.state.activeTrack]) {        
+        switch (event.code) {
+          case "Backspace":
+            this.killAudios()
+            console.log("kill");
+            
+            break;
+          case "AltLeft":
+            this.state.audios[this.state.activeTrack].jump(5, this.state.audios[this.state.activeTrack].duration()-5)
+            console.log("active track : " + this.state.activeTrack );
+            this.state.audios[this.state.activeTrack].pause()
+            setTimeout(() => {
+              this.state.audios[this.state.activeTrack].play()
+              this.setState({ currentMusicTime: this.state.audios[this.state.activeTrack].currentTime()})
+            }, 100);
+            break;
+          case "Space":
+            this.toggleAudio()
+            break;
+  
+          case "ArrowRight":
+              this.changeSong("next")
+            break;
+        
+          case "ArrowLeft":
+              this.changeSong("previous")
+            
+            break;
+  
+          case "ArrowUp":
+            if (this.state.volume >= 0.95) {
+              this.setState({ volume : 1 });
+            } else {
+              this.setState(prevState => {
+                return { volume: prevState.volume+0.05 };
+              })
+            }
+            break;
+          case "ArrowDown":
+            if (this.state.volume <= 0.05) {
+              this.setState({ volume: 0 });
+            } else {
+              this.setState(prevState => {
+                return { volume: prevState.volume - 0.05 };
+              })
+            }
+            break;
+          default:
+            break;
+        }
       }
     })
   }
@@ -234,17 +345,17 @@ class App extends Component {
 
   render() { 
     let backgroundImageStyle
-    let barWidthStyle
+    let cmtWidthStyle
     let soundStyle
     let soundTransformValue = 50
-    if (this.state.musicData.tracks) {      
+    if (this.state.musicData) {      
       backgroundImageStyle = {
-        'backgroundImage' : `url(${this.state.musicData.tracks[this.state.activeTrack].cover})`,
+        'backgroundImage' : `url(${this.state.musicData[this.state.activeTrack].cover})`,
         backgroundSize : 'cover',
         backgroundPosition : 'center center'
       }
       if (this.state.audios[this.state.activeTrack]) {
-        barWidthStyle = {
+        cmtWidthStyle = {
           'width' : parseInt((this.state.currentMusicTime / this.state.audios[this.state.activeTrack].duration())*100) + "%"
         }
         soundTransformValue = -(1 - this.state.volume)*100
@@ -255,8 +366,8 @@ class App extends Component {
       }
     }
     let renderedPlaylist
-    if (this.state.musicData.tracks) {
-      renderedPlaylist = this.state.musicData.tracks.map( (track, index) =>
+    if (this.state.musicData) {
+      renderedPlaylist = this.state.musicData.map( (track, index) =>
       <div key={index} className="playlistElement">
         <img
           onClick={()=> {this.toggleAudio(index)}}
@@ -273,7 +384,7 @@ class App extends Component {
             <div className="title">{track.title}</div>
           </div>
           <div className="duration">{this.state.audios[index] ? this.formatTime(this.state.audios[index].duration()) : track.duration}</div>
-          {(index === this.state.activeTrack) ? <div style={barWidthStyle} className="timeProgression"></div> : ""}
+          {(index === this.state.activeTrack) ? <div style={cmtWidthStyle} className="timeProgression"></div> : ""}
         </div>
       </div>
       )
@@ -292,14 +403,27 @@ class App extends Component {
           <div className="bgFilter"></div>
         </div>
         <div className="musicPlayer">
-          <div ref={this.$visualizer} id="visualizer"></div>
+          <div ref={this.$visualizer} id="visualizer">
+            { this.state.fileIsLoaded && this.state.audios[this.state.activeTrack] ?
+              <CSSTransitionGroup
+                transitionName="cover"
+                transitionAppear={true}
+                transitionAppearTimeout={500}
+                transitionEnterTimeout={300}
+                transitionLeaveTimeout={300}
+              >
+                <div key={this.state.activeTrack} style={backgroundImageStyle} className="cover"></div>
+              </CSSTransitionGroup>
+            : ""
+            }
+          </div>
           <div className="card">
               {this.state.activeScreen === "nowPlaying" ?
               <div className="flex-wrap">
                 <div className="info">
-                  <div className="artist">{this.state.musicData ? this.state.musicData.tracks[this.state.activeTrack].artistName : "artist"}</div>
-                  <div className="album">{this.state.musicData ? this.state.musicData.tracks[this.state.activeTrack].album : "album"}</div>
-                  <div className="title">{this.state.musicData ? this.state.musicData.tracks[this.state.activeTrack].title : "title"}</div>
+                  <div className="artist">{this.state.musicData ? this.state.musicData[this.state.activeTrack].artistName : "artist"}</div>
+                  <div className="album">{this.state.musicData ? this.state.musicData[this.state.activeTrack].album : "album"}</div>
+                  <div className="title">{this.state.musicData ? this.state.musicData[this.state.activeTrack].title : "title"}</div>
                 </div>
                 <div className="controls">
                   <img alt="before-button" src={nextSymbol} onClick={()=> {this.changeSong("previous")}} className="before"></img>
@@ -311,19 +435,25 @@ class App extends Component {
                   ></img>      
                   <img alt="next-button" src={nextSymbol} onClick={()=> {this.changeSong("next")}} className="next"></img>
                 </div>
-                <div className="progressBar">
+                <div onClick={this.changeSongMoment} className="progressBar">
                   <div className="actualTime">{this.formatTime(this.state.currentMusicTime)}</div>
                   <div className="totalTime">{
-                  this.state.musicData.tracks && this.state.audios[this.state.activeTrack] ?  this.formatTime(this.state.audios[this.state.activeTrack].duration()) : "00:00"
+                  this.state.musicData && this.state.audios[this.state.activeTrack] ?  this.formatTime(this.state.audios[this.state.activeTrack].duration()) : "00:00"
                   }</div>
                   <div
-                    style={barWidthStyle}
+                    style={cmtWidthStyle}
                     className="timeProgression"
                   ></div>
                 </div>
               </div>
               : renderedPlaylist ?
-               <div className="playlist">{renderedPlaylist}</div>
+              // <CSSTransitionGroup
+              //     transitionName = "playlist-pop"
+              //     transitionEnterTimeout={500}
+              //     transitionLeaveTimeout={300}
+              // >
+                <div key={this.state.activeTrack} className="playlist">{renderedPlaylist}</div>
+              // </CSSTransitionGroup>
                : "loading"
               }
             <div onClick = {this.playlistSwitch} className="playlistSwitch">{this.state.activeScreen === 'nowPlaying' ? "PLAYLIST" : 'PLAYING NOW'}</div>
