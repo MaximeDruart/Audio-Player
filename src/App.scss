@@ -75,25 +75,37 @@ $muted-card-font : #AAAAAA;
             opacity: 0.85;
         }
     }
+
+    $player-width : 900px;
+    $player-height:60vh;
+    $visRadius : 42vh;
     
     .musicPlayer{
-        width:50%;
+        max-width:$player-width;
         height: 60%;
-        border:1px solid black;
         display: grid;
         grid-template-rows: 100%;
         grid-template-columns: repeat(10, 10%);
         align-items: center;
 
-        #visualizer{
+        .visualizer{
             position: relative;
             z-index: 10;
             grid-row: 1;
             grid-column: 1;
             border-radius: 50%;
-            border:1px solid black;
-            width:20vw;
-            height:20vw;
+            width:$player-height*0.7;
+            height:$player-height*0.7;
+
+            #canvasContainer{
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                width:150%;
+                height:150%;
+                pointer-events:none;
+            }
 
             .cover{
                 position: absolute;
@@ -102,8 +114,8 @@ $muted-card-font : #AAAAAA;
                 transform: translate(-50%, -50%);
                 border-radius: 50%;
                 overflow: hidden;
-                width: 70%;
-                height: 70%;
+                width: 100%;
+                height: 100%;
                 transition: all 600ms ease-in-out;
 
                 &.cover-appear{
@@ -140,7 +152,7 @@ $muted-card-font : #AAAAAA;
     
         .card{
             position: relative;
-            padding-left: 32%;
+            padding-left: $visRadius / 2 + 7vh; // a la louche
             grid-row: 1;
             grid-column: 3 / 11;
             height: 60%;
@@ -155,8 +167,8 @@ $muted-card-font : #AAAAAA;
                 flex-flow: column nowrap;
                 justify-content: space-around;
                 align-items: flex-start;
-                height:80%;
-                width:80%;
+                height:90%;
+                width:85%;
 
                 .info {
                     width: 100%;
@@ -164,7 +176,7 @@ $muted-card-font : #AAAAAA;
                     .artist, .title, .album{
                         text-transform: uppercase;
                         color: $card-font;
-                        font-size: 35px;
+                        font-size: 43px;
                     }
                     .album{
                         color: $muted-card-font;
@@ -182,7 +194,7 @@ $muted-card-font : #AAAAAA;
                     height:25%;
 
                     .before, .next, .playPause{
-                        height:25px;
+                        height:43px;
                         cursor: pointer;
                     }
 
@@ -198,9 +210,9 @@ $muted-card-font : #AAAAAA;
                     justify-content: space-between;
                     align-items: center;
                     width:100%;
-                    height:25px;
+                    height:40px;
                     background-color: $card-background-light;
-                    border-radius:10px;
+                    border-radius:20px;
                     overflow: hidden;
 
                     *{
@@ -211,7 +223,7 @@ $muted-card-font : #AAAAAA;
                     .actualTime, .totalTime{
                         color: $card-font;
                         z-index: 10;
-                        font-size: 18px;
+                        font-size: 21px;
                     }
 
                     .actualTime{
@@ -226,7 +238,7 @@ $muted-card-font : #AAAAAA;
                         height: 100%;
                         width:0%;
                         background-color: $card-light;
-                        border-radius:10px;
+                        border-radius:20px;
                         transition : all 0.6s ease-in-out;
                     }
                 }

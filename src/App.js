@@ -25,7 +25,7 @@ class App extends Component {
       activeTrack :  0,
       activeScreen : "nowPlaying",
       currentMusicTime : 0,
-      volume : 0.5,
+      volume : 0.4,
       audios:[],
       coverColor : "white"
      }
@@ -34,6 +34,18 @@ class App extends Component {
      this.covers = []
   }
 
+  storeState = () => {
+    localStorage.setItem('volume', this.state.volume)
+    localStorage.setItem('activeTrack', this.state.activeTrack)
+  }
+
+  setLocalStorageState = () => {
+    this.setState({
+      volume :  JSON.parse(localStorage.getItem('volume')),
+      activeTrack: JSON.parse(localStorage.getItem('activeTrack'))
+    })
+    if (this.state.audios) this.state.audios.forEach(audio => audio.setVolume(this.state.volume)) 
+  }
 
   formatTime = string => {
     string = parseInt(string)
@@ -53,7 +65,7 @@ class App extends Component {
     this.setState({ musicData: tempData });
   }
 
-  getData =() => {
+  getData = () => {
     // wanted to do an api call but couldn't find an api that'd give me audio files...
     this.setState({ musicData : musicDataJSON });
   }
@@ -77,9 +89,9 @@ class App extends Component {
       let {width, height} = this.$visualizer.current.getBoundingClientRect()
       this.setState({
         canvasSize: {width : width, height : height},
-        visRadius : (width * 0.7 ) / 2
+        visRadius : (width * 2  / 3 ) / 2
       })
-      p.createCanvas(width, height).parent('visualizer')
+      p.createCanvas(width, height).parent('canvasContainer')
       fft = new p5.FFT(0.9, 256)
       p.frameRate(60)
     }
@@ -117,7 +129,7 @@ class App extends Component {
           let y = p.sin(angle)*minimum
           p.vertex(x, y)
           // p.push()
-          p.fill("black")
+          p.fill("#16191D")
           p.ellipse(0, 0, minimum, minimum)
           // p.pop()
         })
@@ -128,14 +140,14 @@ class App extends Component {
       let { width, height } = this.$visualizer.current.getBoundingClientRect()
       this.setState({
         canvasSize: { width: width, height: height },
-        visRadius: (width * 0.7) / 2
+        visRadius: (width * 2 / 3) / 2
       })
       p.resizeCanvas(width, height)
     }
 
   }
     
-    toggleAudio = (trackNbParam = "noparam") => {
+  toggleAudio = (trackNbParam = "noparam") => {
       let trackNumber
     if (trackNbParam === "noparam") {
       trackNumber = this.state.activeTrack
@@ -172,8 +184,10 @@ class App extends Component {
     let relativePos =  clientY - y
     relativePos /= height
     relativePos = 1 - relativePos
-    this.setState({ volume: relativePos });
-    this.state.audios[this.state.activeTrack].setVolume(relativePos)
+    this.setState({ volume: relativePos })
+    this.state.audios.forEach((audio) => {
+      audio.setVolume(relativePos)
+    })
   }
 
 
@@ -189,20 +203,25 @@ class App extends Component {
     let relativePos = clientX - x
     relativePos /= width
     if (this.state.audios[this.state.activeTrack]) {
-      this.killAudios()  
-      let songCMT = parseInt(relativePos * this.state.audios[this.state.activeTrack].duration())
-      this.setState({ currentMusicTime: songCMT })
       this.state.audios[this.state.activeTrack].stop()
-      this.state.audios[this.state.activeTrack].jump(songCMT)
-      console.log(songCMT, this.state.audios[this.state.activeTrack].currentTime());
       setTimeout(() => {
-        console.log(this.state.audios[this.state.activeTrack].currentTime());
-        
-      }, 500);
+        let songCMT = parseInt(relativePos * this.state.audios[this.state.activeTrack].duration())
+        this.setState({ currentMusicTime: songCMT })
+        this.state.audios[this.state.activeTrack].jump(songCMT)
+        this.state.audios[this.state.activeTrack].fade(this.state.volume, 2)
+      }, 10);
     }
   }
 
   changeSong(direction){
+    if (this.state.currentMusicTime > 3 && direction==="previous") {
+      this.state.audios[this.state.activeTrack].stop()
+      setTimeout(() => {
+        this.setState({ currentMusicTime: 0 });
+        this.state.audios[this.state.activeTrack].jump(0)
+      }, 10)
+      return
+    }
     let canChangePrevious = direction === "previous" && this.state.activeTrack >= 1
     let canChangeNext = direction === "next" && this.state.activeTrack < this.state.musicData.length - 1
     this.setState(prevState => {
@@ -227,8 +246,6 @@ class App extends Component {
             } else {
               audio.jump(0)
               audio.fade(this.state.volume, 5)
-              console.log("play 0");
-              
             }
           } else if (canChangePrevious) {
             if (index !== this.state.activeTrack) {
@@ -237,25 +254,21 @@ class App extends Component {
             } else {
               audio.jump(0)
               audio.fade(this.state.volume, 5)
-              console.log("play 1");
-              
             }
           }
         })
       }
-    }, 120);
+    }, 10);
   }
-  
 
-  interval
   componentDidMount() {
+    this.setLocalStorageState()
     this.setState({ visualizer: new p5(this.sketch) });
     this.getData()
     this.keyboardEventsHandler()
 
     this.interval = setInterval(() => {
       if (this.state.audios[this.state.activeTrack]) { 
-        console.table(this.state.audios[this.state.activeTrack].currentTime(), this.state.currentMusicTime, this.state.audios[this.state.activeTrack].isPlaying());
         if (this.state.audios[this.state.activeTrack].isPlaying()) {
           this.setState({ currentMusicTime: parseInt(this.state.audios[this.state.activeTrack].currentTime()) });
         }
@@ -281,8 +294,14 @@ class App extends Component {
     // this.state.audios.forEach((audio, index) => {
     //   audio.stop()
     // })
-    this.state.audios[this.state.activeTrack].stop()
+    for (let i = 0; i < this.state.audios.length; i++) {
+      this.state.audios[i].stop()
+    }
+    // this.setState({ audios: [0,0,0,0] });
     // this.setState({ audios: audioTemp  });
+  }
+  componentDidUpdate(prevProps, prevState) {
+    this.storeState()
   }
 
   keyboardEventsHandler = () => {   
@@ -290,20 +309,6 @@ class App extends Component {
     window.addEventListener('keydown', event => {
       if (this.state.audios[this.state.activeTrack]) {        
         switch (event.code) {
-          case "Backspace":
-            this.killAudios()
-            console.log("kill");
-            
-            break;
-          case "AltLeft":
-            this.state.audios[this.state.activeTrack].jump(5, this.state.audios[this.state.activeTrack].duration()-5)
-            console.log("active track : " + this.state.activeTrack );
-            this.state.audios[this.state.activeTrack].pause()
-            setTimeout(() => {
-              this.state.audios[this.state.activeTrack].play()
-              this.setState({ currentMusicTime: this.state.audios[this.state.activeTrack].currentTime()})
-            }, 100);
-            break;
           case "Space":
             this.toggleAudio()
             break;
@@ -403,7 +408,8 @@ class App extends Component {
           <div className="bgFilter"></div>
         </div>
         <div className="musicPlayer">
-          <div ref={this.$visualizer} id="visualizer">
+          <div className="visualizer">
+            <div ref={this.$visualizer} id="canvasContainer"></div>
             { this.state.fileIsLoaded && this.state.audios[this.state.activeTrack] ?
               <CSSTransitionGroup
                 transitionName="cover"
@@ -414,7 +420,13 @@ class App extends Component {
               >
                 <div key={this.state.activeTrack} style={backgroundImageStyle} className="cover"></div>
               </CSSTransitionGroup>
-            : ""
+            : <div
+              style={{
+                'textAlign':'center',
+                'color':'white'
+              }
+              }
+              className="loading">LOADING</div>
             }
           </div>
           <div className="card">
