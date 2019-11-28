@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/Audio-Player/static/css/main.1425e193.chunk.css",
-    "main.js": "/Audio-Player/static/js/main.ab1a7927.chunk.js",
-    "main.js.map": "/Audio-Player/static/js/main.ab1a7927.chunk.js.map",
+    "main.js": "/Audio-Player/static/js/main.06576405.chunk.js",
+    "main.js.map": "/Audio-Player/static/js/main.06576405.chunk.js.map",
     "runtime-main.js": "/Audio-Player/static/js/runtime-main.f45643d4.js",
     "runtime-main.js.map": "/Audio-Player/static/js/runtime-main.f45643d4.js.map",
     "static/js/2.9e135f30.chunk.js": "/Audio-Player/static/js/2.9e135f30.chunk.js",
     "static/js/2.9e135f30.chunk.js.map": "/Audio-Player/static/js/2.9e135f30.chunk.js.map",
     "index.html": "/Audio-Player/index.html",
-    "precache-manifest.6eb51fdaeb2fee43c63c222daa107bb2.js": "/Audio-Player/precache-manifest.6eb51fdaeb2fee43c63c222daa107bb2.js",
+    "precache-manifest.b89ae74e7dd65c4ea520c74fd34bc384.js": "/Audio-Player/precache-manifest.b89ae74e7dd65c4ea520c74fd34bc384.js",
     "service-worker.js": "/Audio-Player/service-worker.js",
     "static/css/main.1425e193.chunk.css.map": "/Audio-Player/static/css/main.1425e193.chunk.css.map",
     "static/media/App.css": "/Audio-Player/static/media/VCR_OSD_MONO_1.001.5fcd6c65.ttf",
@@ -29,6 +29,6 @@
     "static/js/runtime-main.f45643d4.js",
     "static/js/2.9e135f30.chunk.js",
     "static/css/main.1425e193.chunk.css",
-    "static/js/main.ab1a7927.chunk.js"
+    "static/js/main.06576405.chunk.js"
   ]
 }
