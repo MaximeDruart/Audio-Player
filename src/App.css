@@ -133,7 +133,8 @@ body {
           justify-content: space-between;
           align-items: center;
           width: 95%;
-          height: 25%; }
+          height: 25%;
+          user-select: none; }
           .container .musicPlayer .card .flex-wrap .controls .before, .container .musicPlayer .card .flex-wrap .controls .next, .container .musicPlayer .card .flex-wrap .controls .playPause {
             height: 43px;
             cursor: pointer; }
@@ -252,7 +253,8 @@ body {
         transform-origin: right;
         cursor: pointer;
         color: #DFDFDF;
-        font-size: 22px; }
+        font-size: 22px;
+        user-select: none; }
       .container .musicPlayer .card .volume {
         position: absolute;
         top: 50%;
@@ -269,7 +271,8 @@ body {
         .container .musicPlayer .card .volume .volumeIcon {
           width: 80%;
           margin-top: 5px;
-          margin-left: 2px; }
+          margin-left: 2px;
+          pointer-events: none; }
         .container .musicPlayer .card .volume .volumeProgression {
           position: absolute;
           top: 0;

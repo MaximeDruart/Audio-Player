@@ -192,6 +192,7 @@ $muted-card-font : #AAAAAA;
                     align-items: center;
                     width: 95%;
                     height:25%;
+                    user-select: none;
 
                     .before, .next, .playPause{
                         height:43px;
@@ -359,6 +360,7 @@ $muted-card-font : #AAAAAA;
                 cursor: pointer;
                 color: $card-font;
                 font-size: 22px;
+                user-select: none;
             }
 
             .volume{
@@ -381,6 +383,7 @@ $muted-card-font : #AAAAAA;
                     width:80%;
                     margin-top: 5px;
                     margin-left: 2px;
+                    pointer-events: none;
                 }
 
                 .volumeProgression{

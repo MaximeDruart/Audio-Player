@@ -35,14 +35,18 @@ class App extends Component {
       currentMusicTime: 0,
       volume: 0.4,
       audios: [],
-      coverColor: "white"
+      coverColor: "white",
+      mouseIsDown : false
     }
     this.$visualizer = React.createRef()
     this.audios = []
     this.covers = []
     this.coverSources = [cover1, cover2, cover3, cover4]
     this.audioSources = [audio1, audio2, audio3, audio4]
-    
+
+    this.mouseDragStart = {}
+    this.mouseDragDeltas= {}
+    this.startVolume = this.state.volume
   }
 
   storeState = () => {
@@ -189,6 +193,41 @@ class App extends Component {
     }
   }
 
+  dragAndDrop = event => {
+    const {target, clientY, clientX} = event
+    const {height, width} = target.getBoundingClientRect()
+
+    if (event.type === 'mousedown') {
+      this.upDownDelay = new Date()      
+      // waiting for the volume slide animation to end
+      setTimeout(() => {
+        this.setState({ mouseIsDown: true })
+      }, 200)
+
+      this.mouseDragStart = {
+        x : clientX,
+        y : clientY
+      }
+      this.startVolume = this.changeVolume(event)
+    } else if (event.type === 'mousemove' && this.state.mouseIsDown) {
+      this.mouseDragDeltas = {
+        x : (this.mouseDragStart.x - (clientX)) / width, 
+        y: (this.mouseDragStart.y - (clientY)) / height, 
+      }
+      this.setState({ volume: this.startVolume + this.mouseDragDeltas.y })
+
+    } else if (event.type === 'mouseup' || event.type === 'mouseleave') {
+      // kinda sketchy but it's the simpliest to avoid conflicts with simple click (who fires down and up events in less than .2s)
+      if (new Date()-this.upDownDelay < 300) {
+        setTimeout(() => {
+          this.setState({ mouseIsDown: false })
+        }, 200)
+      } else {
+        this.setState({ mouseIsDown: false })
+      }
+    }
+  }
+
   changeVolume = event => {
     let { target, clientY } = event
     let { height, y } = target.getBoundingClientRect()
@@ -199,6 +238,7 @@ class App extends Component {
     this.state.audios.forEach((audio) => {
       audio.setVolume(relativePos)
     })
+    return relativePos
   }
 
 
@@ -268,7 +308,7 @@ class App extends Component {
           }
         })
       }
-    }, 10);
+    }, 150);
   }
 
   componentDidMount() {
@@ -365,7 +405,7 @@ class App extends Component {
         soundTransformValue = -(1 - this.state.volume) * 100
         soundStyle = {
           'transform': `rotate(180deg) translateY(${soundTransformValue}%)`,
-          'transition': 'transform 0.3s ease-in-out'
+          'transition': this.state.mouseIsDown ? 'none' : 'transform 0.2s ease-in-out'
         }
       }
     }
@@ -436,14 +476,24 @@ class App extends Component {
                   <div className="title">{this.state.musicData ? this.state.musicData[this.state.activeTrack].title : "title"}</div>
                 </div>
                 <div className="controls">
-                  <img alt="before-button" src={nextSymbol} onClick={() => { this.changeSong("previous") }} className="before"></img>
+                  <img
+                    src={nextSymbol}
+                    onClick={() => { this.changeSong("previous") }}
+                    className="before"
+                    alt="before-button"
+                  ></img>
                   <img
                     src={this.state.fileIsLoaded ? (this.state.audios[this.state.activeTrack].isPlaying() ? pauseButton : playButton) : playButton}
-                    onClick={() => { this.toggleAudio() }}
+                    onClick={()=> {this.toggleAudio() }}
                     className="playPause"
                     alt="play music"
                   ></img>
-                  <img alt="next-button" src={nextSymbol} onClick={() => { this.changeSong("next") }} className="next"></img>
+                  <img
+                    src={nextSymbol}
+                    onClick={() => { this.changeSong("next") }}
+                    className="next"
+                    alt="next-button"
+                  ></img>
                 </div>
                 <div onClick={this.changeSongMoment} className="progressBar">
                   <div className="actualTime">{this.formatTime(this.state.currentMusicTime)}</div>
@@ -467,7 +517,13 @@ class App extends Component {
                 : "loading"
             }
             <div onClick={this.playlistSwitch} className="playlistSwitch">{this.state.activeScreen === 'nowPlaying' ? "PLAYLIST" : 'PLAYING NOW'}</div>
-            <div onClick={this.changeVolume} className="volume">
+            <div
+              onMouseDown = {this.dragAndDrop}
+              onMouseUp = {this.dragAndDrop}
+              onMouseMove = {this.dragAndDrop}
+              onMouseLeave = {this.dragAndDrop}
+              className="volume"
+            >
               <img src={musicSymbol} alt="music symobl" className="volumeIcon"></img>
               <div style={soundStyle} className="volumeProgression">
                 <div className="volumePercentage">{parseInt(this.state.volume * 100)}%</div>
