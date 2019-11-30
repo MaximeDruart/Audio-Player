@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/Audio-Player/static/css/main.70711ab6.chunk.css",
-    "main.js": "/Audio-Player/static/js/main.5f840606.chunk.js",
-    "main.js.map": "/Audio-Player/static/js/main.5f840606.chunk.js.map",
+    "main.css": "/Audio-Player/static/css/main.3a27aba0.chunk.css",
+    "main.js": "/Audio-Player/static/js/main.3fbc5273.chunk.js",
+    "main.js.map": "/Audio-Player/static/js/main.3fbc5273.chunk.js.map",
     "runtime-main.js": "/Audio-Player/static/js/runtime-main.f45643d4.js",
     "runtime-main.js.map": "/Audio-Player/static/js/runtime-main.f45643d4.js.map",
     "static/js/2.9e135f30.chunk.js": "/Audio-Player/static/js/2.9e135f30.chunk.js",
     "static/js/2.9e135f30.chunk.js.map": "/Audio-Player/static/js/2.9e135f30.chunk.js.map",
     "index.html": "/Audio-Player/index.html",
-    "precache-manifest.b3749990a3a8fa8af039839f44b1a55d.js": "/Audio-Player/precache-manifest.b3749990a3a8fa8af039839f44b1a55d.js",
+    "precache-manifest.6c7956c000a9ca1640016612c196f07e.js": "/Audio-Player/precache-manifest.6c7956c000a9ca1640016612c196f07e.js",
     "service-worker.js": "/Audio-Player/service-worker.js",
-    "static/css/main.70711ab6.chunk.css.map": "/Audio-Player/static/css/main.70711ab6.chunk.css.map",
+    "static/css/main.3a27aba0.chunk.css.map": "/Audio-Player/static/css/main.3a27aba0.chunk.css.map",
     "static/media/App.css": "/Audio-Player/static/media/VCR_OSD_MONO_1.001.5fcd6c65.ttf",
     "static/media/audio01.mp3": "/Audio-Player/static/media/audio01.dc170e87.mp3",
     "static/media/audio02.mp3": "/Audio-Player/static/media/audio02.04420354.mp3",
@@ -28,7 +28,7 @@
   "entrypoints": [
     "static/js/runtime-main.f45643d4.js",
     "static/js/2.9e135f30.chunk.js",
-    "static/css/main.70711ab6.chunk.css",
-    "static/js/main.5f840606.chunk.js"
+    "static/css/main.3a27aba0.chunk.css",
+    "static/js/main.3fbc5273.chunk.js"
   ]
 }
