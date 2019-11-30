@@ -32,6 +32,7 @@ $card-light : #6D7C8E;
 $card-font : #DFDFDF;
 $muted-card-font : #AAAAAA;
 
+
 .container {
     width: 100%;
     height: 100vh;
@@ -119,11 +120,12 @@ $muted-card-font : #AAAAAA;
                 transition: all 600ms ease-in-out;
                 cursor: pointer;
 
-                &.cover-img{
+                &.cover-img {
                     // background-size
                 }
 
                 &.cover-options {
+
                     // cursor: default;
                     .options-wrapper {
                         position: absolute;
@@ -131,22 +133,25 @@ $muted-card-font : #AAAAAA;
                         left: 50%;
                         transform: translate(-50%, -50%);
                         height: 70%;
-                        width:100%;
+                        width: 100%;
                         display: flex;
                         flex-flow: column nowrap;
                         justify-content: space-around;
                         align-items: center;
-                        
+
                         .option {
                             width: 80%;
-                            height: 20%;
+                            height: 22%;
                             display: flex;
                             flex-flow: column nowrap;
                             align-items: center;
                             justify-content: space-between;
 
-                            .title {
+                            .option-txt {
                                 color: $card-font;
+                                text-transform: uppercase;
+                                font-size: 18px;
+                                
                             }
 
                             .bar {
@@ -218,8 +223,6 @@ $muted-card-font : #AAAAAA;
 
                 &.load-on {
                     animation: loading 0.6s infinite ease-in-out both alternate;
-                    // animation-direction: ;
-                    // animation-fill-mode: ;
                 }
 
                 &.load-off {
@@ -296,47 +299,6 @@ $muted-card-font : #AAAAAA;
                     .before {
                         transform-origin: center;
                         transform: rotate(180deg);
-                    }
-                }
-
-                .progressBar {
-                    position: relative;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    width: 100%;
-                    height: 40px;
-                    background-color: $card-background-light;
-                    border-radius: 20px;
-                    overflow: hidden;
-
-                    * {
-                        pointer-events: none;
-                        user-select: none;
-                    }
-
-                    .actualTime,
-                    .totalTime {
-                        color: $card-font;
-                        z-index: 10;
-                        font-size: 21px;
-                    }
-
-                    .actualTime {
-                        margin-left: 15px;
-                    }
-
-                    .totalTime {
-                        margin-right: 15px;
-                    }
-
-                    .timeProgression {
-                        @include abs00();
-                        height: 100%;
-                        width: 0%;
-                        background-color: $card-light;
-                        border-radius: 20px;
-                        transition: all 0.6s ease-in-out;
                     }
                 }
             }
@@ -510,5 +472,48 @@ $muted-card-font : #AAAAAA;
                 }
             }
         }
+    }
+}
+
+
+.progressBar {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 40px;
+    background-color: $card-background-light;
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+
+    * {
+        pointer-events: none;
+        user-select: none;
+    }
+
+    .currentTime,
+    .totalTime {
+        color: $card-font;
+        z-index: 10;
+        font-size: 21px;
+    }
+
+    .currentTime {
+        margin-left: 15px;
+    }
+
+    .totalTime {
+        margin-right: 15px;
+    }
+
+    .timeProgression {
+        @include abs00();
+        height: 100%;
+        width: 0%;
+        background-color: $card-light;
+        border-radius: 20px;
+        transition: all 0.3s ease-in-out;
     }
 }

@@ -1,13 +1,17 @@
 import React, { Component } from 'react'
+import { CSSTransitionGroup } from 'react-transition-group'
 import p5 from 'p5'
 import 'p5/lib/addons/p5.sound'
 import * as Vibrant from 'node-vibrant'
+
+import Slider from './Slider'
 import musicDataJSON from './musicData.json'
 import './App.css'
-import playButton from './play.svg'
-import pauseButton from './pause.svg'
-import musicSymbol from './music.svg'
-import nextSymbol from './next.svg'
+
+import playButton from './svgs/play.svg'
+import pauseButton from './svgs/pause.svg'
+import musicSymbol from './svgs/music.svg'
+import nextSymbol from './svgs/next.svg'
 import cover1 from './covers/cover01.jpg'
 import cover2 from './covers/cover02.jpg'
 import cover3 from './covers/cover03.jpg'
@@ -16,8 +20,7 @@ import audio1 from './audios/audio01.mp3'
 import audio2 from './audios/audio02.mp3'
 import audio3 from './audios/audio03.mp3'
 import audio4 from './audios/audio04.mp3'
-import { CSSTransitionGroup } from 'react-transition-group'
-import * as gsap from 'gsap/all'
+// import * as gsap from 'gsap/all'
 
 class App extends Component {
   constructor(props) {
@@ -40,8 +43,11 @@ class App extends Component {
       coverColor: "white",
       mouseIsDown : false,
       smoothing : 0.8,
+      samples : 256,
+      amplitude : 0.4
     }
-    this.visRadiusCopy = 0
+    this.smoothingSave = this.state.smoothing
+    this.samplesSave = this.state.samples
     this.$visualizer = React.createRef()
     this.$cover = React.createRef()
     this.audios = []
@@ -105,30 +111,6 @@ class App extends Component {
       })
     }
 
-    // https://p5js.org/examples/color-linear-gradient.html
-
-    p.setGradient = (x, y, w, h, c1, c2, axis) => {
-      p.noFill()
-      if (axis === "Y_AXIS") {
-        // Top to bottom gradient
-        for (let i = y; i <= y + h; i++) {
-          let inter = p.map(i, y, y + h, 0, 1);
-          let c = p.lerpColor(c1, c2, inter);
-          p.stroke(c);
-          p.line(x, i, x + w, i);
-        }
-      } else if (axis === "X_AXIS") {
-        // Left to right gradient
-        for (let i = x; i <= x + w; i++) {
-          let inter = p.map(i, x, x + w, 0, 1);
-          let c = p.lerpColor(c1, c2, inter);
-          p.stroke(c);
-          p.line(i, y, i, y + h);
-        }
-      }
-    }
-
-
     p.setup = () => {
       this.getCoverColor()
       this.setState({ fileIsLoaded: true, audios: this.audios })
@@ -138,51 +120,19 @@ class App extends Component {
         visRadius: (width * 1/2) / 2 // canvas is a half of its container and we divide by 2 again for radius and not diameter
       })
       p.createCanvas(width, height).parent('canvasContainer')
-      fft = new p5.FFT(this.state.smoothing, 256)
+      fft = new p5.FFT(this.state.smoothing, this.state.samples)
       p.frameRate(60)
     }
 
-    // vertices version
-    p.drawA = () => {
-      p.angleMode(p.DEGREES)
-      p.clear()
-      p.noStroke()
-      spectrum = fft.analyze()
-      waveform = fft.waveform()
-      p.translate(this.state.canvasSize.width / 2, this.state.canvasSize.height / 2)
-      p.rotate(60)
-      p.beginShape()
-      if (spectrum[spectrum.length - 1] === 0) p.vertex(this.state.visRadius, 0)
-      spectrum.forEach((value, index) => {
-        let angle = p.map(index, 0, spectrum.length, 0, 360)
-        let valueCopy = p.map(value, 0, 255, this.state.visRadius, this.state.canvasSize.width * 0.6)
-        let cosVal = valueCopy * p.cos(angle)
-        let sinVal = valueCopy * p.sin(angle)
-        p.fill(this.state.coverColor)
-        p.vertex(cosVal, sinVal)
-      })
-      p.endShape()
-
-
-      p.beginShape()
-      // if (this.visRadiusCopy < this.state.visRadius) {
-      // this.visRadiusCopy += 15
-      // } else this.visRadiusCopy = this.state.visRadius
-      
-      spectrum.forEach((value, index) => {
-        let angle = p.map(index, 0, spectrum.length, 0, 360)
-        let waveformMultiplier = p.map(waveform[index], -1, 1, 1, 1.05)
-        let minimum = this.state.visRadius * waveformMultiplier * 1.05
-        let x = p.cos(angle) * minimum
-        let y = p.sin(angle) * minimum
-        p.vertex(x, y)
-        p.fill("#16191D")
-        p.ellipse(0, 0, minimum, minimum)
-      })
-      p.endShape()
-    }
-
     p.draw = () => {
+      if (this.smoothingSave !== this.state.smoothing) {
+        fft = new p5.FFT(this.state.smoothing, this.state.samples)
+        this.smoothingSave = this.state.smoothing
+      }
+      if (this.samplesSave !== this.state.samples) {
+        fft = new p5.FFT(this.state.smoothing, this.state.samples)
+        this.samplesSave = this.state.samples
+      }
       p.angleMode(p.DEGREES)
       p.clear()
       p.noStroke()
@@ -191,33 +141,24 @@ class App extends Component {
       p.translate(this.state.canvasSize.width / 2, this.state.canvasSize.height / 2)
       p.rotate(-20)
       spectrum =  spectrum.slice(0, Math.floor(spectrum.length *(2/3)))
+
+      // drawing spikes
       spectrum.forEach((value, index) => {
         let angle = p.map(index, 0, spectrum.length, 0, 360)
-        let valueCopy = p.map(value, 0, 255, this.state.visRadius*1.10, this.state.canvasSize.width * 0.4)
-        let cosVal = valueCopy * p.cos(angle)
-        let sinVal = valueCopy * p.sin(angle)
+        let valueCopy = p.map(value, 0, 255, this.state.visRadius*1.10, this.state.canvasSize.width * this.state.amplitude)
+        // let cosVal = valueCopy * p.cos(angle)
+        // let sinVal = valueCopy * p.sin(angle)
         p.fill(this.state.coverColor)
         p.noStroke()
         p.push()
         p.rotate(angle)
         p.rect(0, 0, 9, valueCopy)
-        // if (this.state.coverColor !=="white") {
-        //   p.setGradient(0, 0, 12, valueCopy, p.color(0,0,0), p.color(255,255,255), "X_AXIS")
-        // } else {
-        //   let c1 = this.state.coverColor
-        //   c1 = p.color(c1[0], c1[1], c1[2])
-        //   p.setGradient(0, 0, 12, valueCopy, c1, p.color(255, 255, 255), "X_AXIS")
-        // }
         p.pop()
       })
 
       
-
+      // drawing the inner circle
       p.beginShape()
-      // if (this.visRadiusCopy < this.state.visRadius) {
-      // this.visRadiusCopy += 15
-      // } else this.visRadiusCopy = this.state.visRadius
-      
       spectrum.forEach((value, index) => {
         let angle = p.map(index, 0, spectrum.length, 0, 360)
         let waveformMultiplier = p.map(waveform[index], -1, 1, 1, 1.05)
@@ -235,7 +176,7 @@ class App extends Component {
       let { width, height } = this.$visualizer.current.getBoundingClientRect()
       this.setState({
         canvasSize: { width: width, height: height },
-        visRadius: (width * 2 / 3) / 2
+        visRadius: (width * 1 / 2) / 2
       })
       p.resizeCanvas(width, height)
     }
@@ -397,10 +338,13 @@ class App extends Component {
     }
   }
 
-  optionSwitch = () => {
-    this.setState(prevState => {
-      return { displayOptions: !prevState.displayOptions }
-    })
+  optionSwitch = event => {
+    if (event.target.classList.contains('cover')) {
+      this.setState(prevState => {
+        return { displayOptions: !prevState.displayOptions }
+      })
+    }
+    
   }
 
   keyboardEventsHandler = () => {
@@ -473,13 +417,22 @@ class App extends Component {
     this.storeState()
   }
 
+  updateStateFromSlider = (stateProperty, newValue) => { 
+    this.setState({ [stateProperty]: newValue })
+  }
+
   render() {
-    let backgroundImageStyle
+    let backgroundImageStyle, backgroundImageStyleCover
     let cmtWidthStyle
     let soundStyle
     let soundTransformValue = 50
     if (this.state.musicData) {
       backgroundImageStyle = {
+        'backgroundImage': `url(${this.coverSources[this.state.activeTrack]})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center center'
+      }
+      backgroundImageStyleCover = {
         'backgroundImage': `url(${this.coverSources[this.state.activeTrack]})`,
         backgroundSize: 'auto 105%',
         backgroundPosition: 'center center'
@@ -548,34 +501,40 @@ class App extends Component {
                   transitionEnterTimeout={500}
                   transitionLeaveTimeout={300}
                 >
-                  <div onClick={this.optionSwitch} ref={this.$cover} key={this.state.activeTrack} style={backgroundImageStyle} className="cover cover-img"></div>
+                  <div onClick={this.optionSwitch} ref={this.$cover} key={this.state.activeTrack} style={backgroundImageStyleCover} className="cover cover-img"></div>
                 </CSSTransitionGroup>
                 : <div onClick={this.optionSwitch} ref={this.$cover} key={this.state.activeTrack} className="cover cover-options">
                   <div className="options-wrapper">
-                    <div className="option option-smoothing">
-                      <div className="title">Smoothing</div>
-                      <div className="bar">
-                        <div className="progressBar"></div>
-                        <div className="startValue">0</div>
-                        <div className="endValue">1</div>
-                      </div>
+                    <div className="option">
+                      <div className="option-txt">smoothing</div>
+                      <Slider
+                        startValue={0}
+                        endValue={1}
+                        stateProperty={'smoothing'}
+                        currentValue={this.state.smoothing}
+                        changeHandler={this.updateStateFromSlider}
+                      ></Slider>
                     </div>
-                    <div className="option option-size">
-                      <div className="title">Max size</div>
-                      <div className="bar">
-                        <div className="progressBar"></div>
-                        <div className="startValue">120</div>
-                        <div className="endValue">180</div>
-                      </div>
+                    <div className="option">
+                      <div className="option-txt">Samples</div>
+                      <Slider
+                        startValue={64}
+                        endValue={1024}
+                        stateProperty={'samples'}
+                        currentValue={this.state.samples}
+                        changeHandler={this.updateStateFromSlider}
+                      ></Slider>
                     </div>
-                    <div className="option option-freq">
-                      <div className="title">frequency broadness</div>
-                      <div className="bar">
-                        <div className="progressBar"></div>
-                        <div className="startValue">64</div>
-                        <div className="endValue">1024</div>
-                      </div>
-                    </div>   
+                    <div className="option">
+                      <div className="option-txt">Amplitude</div>
+                      <Slider
+                        startValue={0.3}
+                        endValue={0.6}
+                        stateProperty={'amplitude'}
+                        currentValue={this.state.amplitude}
+                        changeHandler={this.updateStateFromSlider}
+                      ></Slider>
+                    </div>
                   </div>
                 </div>
                 )
@@ -610,16 +569,17 @@ class App extends Component {
                     alt="next-button"
                   ></img>
                 </div>
-                <div onClick={this.changeSongMoment} className="progressBar">
-                  <div className="actualTime">{this.formatTime(this.state.currentMusicTime)}</div>
-                  <div className="totalTime">{
-                    this.state.musicData && this.state.audios[this.state.activeTrack] ? this.formatTime(this.state.audios[this.state.activeTrack].duration()) : "00:00"
-                  }</div>
-                  <div
-                    style={cmtWidthStyle}
-                    className="timeProgression"
-                  ></div>
-                </div>
+                <Slider
+                  audio={this.state.audios[this.state.activeTrack]}
+                  startValue={this.formatTime(this.state.currentMusicTime)}
+                  endValue={this.state.musicData && this.state.audios[this.state.activeTrack] ? this.formatTime(this.state.audios[this.state.activeTrack].duration()) : "00:00"}
+                  currentValue = {this.formatTime(this.state.currentMusicTime)}
+                  audioCurrentValuePercentage={this.state.musicData && this.state.audios[this.state.activeTrack] ?
+                    parseInt((this.state.currentMusicTime / this.state.audios[this.state.activeTrack].duration()) * 100)
+                    : 0
+                  }
+                  changeHandlerAudio={this.changeSongMoment}
+                ></Slider>
               </div>
               : renderedPlaylist ?
                 // <CSSTransitionGroup
