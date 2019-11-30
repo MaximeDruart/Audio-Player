@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 import p5 from 'p5'
-import 'p5/lib/addons/p5.sound';
+import 'p5/lib/addons/p5.sound'
 import * as Vibrant from 'node-vibrant'
 import musicDataJSON from './musicData.json'
-import './App.css';
+import './App.css'
 import playButton from './play.svg'
 import pauseButton from './pause.svg'
 import musicSymbol from './music.svg'
@@ -17,6 +17,7 @@ import audio2 from './audios/audio02.mp3'
 import audio3 from './audios/audio03.mp3'
 import audio4 from './audios/audio04.mp3'
 import { CSSTransitionGroup } from 'react-transition-group'
+import * as gsap from 'gsap/all'
 
 class App extends Component {
   constructor(props) {
@@ -32,13 +33,17 @@ class App extends Component {
       fileIsLoaded: false,
       activeTrack: 0,
       activeScreen: "nowPlaying",
+      displayOptions : false,
       currentMusicTime: 0,
       volume: 0.4,
       audios: [],
       coverColor: "white",
-      mouseIsDown : false
+      mouseIsDown : false,
+      smoothing : 0.8,
     }
+    this.visRadiusCopy = 0
     this.$visualizer = React.createRef()
+    this.$cover = React.createRef()
     this.audios = []
     this.covers = []
     this.coverSources = [cover1, cover2, cover3, cover4]
@@ -100,20 +105,45 @@ class App extends Component {
       })
     }
 
+    // https://p5js.org/examples/color-linear-gradient.html
+
+    p.setGradient = (x, y, w, h, c1, c2, axis) => {
+      p.noFill()
+      if (axis === "Y_AXIS") {
+        // Top to bottom gradient
+        for (let i = y; i <= y + h; i++) {
+          let inter = p.map(i, y, y + h, 0, 1);
+          let c = p.lerpColor(c1, c2, inter);
+          p.stroke(c);
+          p.line(x, i, x + w, i);
+        }
+      } else if (axis === "X_AXIS") {
+        // Left to right gradient
+        for (let i = x; i <= x + w; i++) {
+          let inter = p.map(i, x, x + w, 0, 1);
+          let c = p.lerpColor(c1, c2, inter);
+          p.stroke(c);
+          p.line(i, y, i, y + h);
+        }
+      }
+    }
+
+
     p.setup = () => {
       this.getCoverColor()
       this.setState({ fileIsLoaded: true, audios: this.audios })
       let { width, height } = this.$visualizer.current.getBoundingClientRect()
       this.setState({
         canvasSize: { width: width, height: height },
-        visRadius: (width * 2 / 3) / 2
+        visRadius: (width * 1/2) / 2 // canvas is a half of its container and we divide by 2 again for radius and not diameter
       })
       p.createCanvas(width, height).parent('canvasContainer')
-      fft = new p5.FFT(0.9, 256)
+      fft = new p5.FFT(this.state.smoothing, 256)
       p.frameRate(60)
     }
 
-    p.draw = () => {
+    // vertices version
+    p.drawA = () => {
       p.angleMode(p.DEGREES)
       p.clear()
       p.noStroke()
@@ -130,14 +160,15 @@ class App extends Component {
         let sinVal = valueCopy * p.sin(angle)
         p.fill(this.state.coverColor)
         p.vertex(cosVal, sinVal)
-        // line(0, 0, cosVal, sinVal)
-        // p.rect(0, 0, 10, valueCopy)
-        // p.rotate(angle)
       })
       p.endShape()
 
 
       p.beginShape()
+      // if (this.visRadiusCopy < this.state.visRadius) {
+      // this.visRadiusCopy += 15
+      // } else this.visRadiusCopy = this.state.visRadius
+      
       spectrum.forEach((value, index) => {
         let angle = p.map(index, 0, spectrum.length, 0, 360)
         let waveformMultiplier = p.map(waveform[index], -1, 1, 1, 1.05)
@@ -145,10 +176,57 @@ class App extends Component {
         let x = p.cos(angle) * minimum
         let y = p.sin(angle) * minimum
         p.vertex(x, y)
-        // p.push()
         p.fill("#16191D")
         p.ellipse(0, 0, minimum, minimum)
-        // p.pop()
+      })
+      p.endShape()
+    }
+
+    p.draw = () => {
+      p.angleMode(p.DEGREES)
+      p.clear()
+      p.noStroke()
+      spectrum = fft.analyze()
+      waveform = fft.waveform()
+      p.translate(this.state.canvasSize.width / 2, this.state.canvasSize.height / 2)
+      p.rotate(-20)
+      spectrum =  spectrum.slice(0, Math.floor(spectrum.length *(2/3)))
+      spectrum.forEach((value, index) => {
+        let angle = p.map(index, 0, spectrum.length, 0, 360)
+        let valueCopy = p.map(value, 0, 255, this.state.visRadius*1.10, this.state.canvasSize.width * 0.4)
+        let cosVal = valueCopy * p.cos(angle)
+        let sinVal = valueCopy * p.sin(angle)
+        p.fill(this.state.coverColor)
+        p.noStroke()
+        p.push()
+        p.rotate(angle)
+        p.rect(0, 0, 9, valueCopy)
+        // if (this.state.coverColor !=="white") {
+        //   p.setGradient(0, 0, 12, valueCopy, p.color(0,0,0), p.color(255,255,255), "X_AXIS")
+        // } else {
+        //   let c1 = this.state.coverColor
+        //   c1 = p.color(c1[0], c1[1], c1[2])
+        //   p.setGradient(0, 0, 12, valueCopy, c1, p.color(255, 255, 255), "X_AXIS")
+        // }
+        p.pop()
+      })
+
+      
+
+      p.beginShape()
+      // if (this.visRadiusCopy < this.state.visRadius) {
+      // this.visRadiusCopy += 15
+      // } else this.visRadiusCopy = this.state.visRadius
+      
+      spectrum.forEach((value, index) => {
+        let angle = p.map(index, 0, spectrum.length, 0, 360)
+        let waveformMultiplier = p.map(waveform[index], -1, 1, 1, 1.05)
+        let minimum = this.state.visRadius * waveformMultiplier * 1.05
+        let x = p.cos(angle) * minimum
+        let y = p.sin(angle) * minimum
+        p.vertex(x, y)
+        p.fill("#16191D")
+        p.ellipse(0, 0, minimum, minimum)
       })
       p.endShape()
     }
@@ -263,7 +341,7 @@ class App extends Component {
     }
   }
 
-  changeSong(direction) {
+  changeSong = direction => {
     if (this.state.currentMusicTime > 3 && direction === "previous") {
       this.state.audios[this.state.activeTrack].stop()
       setTimeout(() => {
@@ -276,10 +354,10 @@ class App extends Component {
     let canChangeNext = direction === "next" && this.state.activeTrack < this.state.musicData.length - 1
     this.setState(prevState => {
       if (canChangePrevious) {
-        return { activeTrack: prevState.activeTrack - 1 };
+        return { activeTrack: prevState.activeTrack - 1 }
       } else if (this.state.musicData) {
         if (canChangeNext) {
-          return { activeTrack: prevState.activeTrack + 1 };
+          return { activeTrack: prevState.activeTrack + 1 }
         }
       }
     })
@@ -311,26 +389,6 @@ class App extends Component {
     }, 150);
   }
 
-  componentDidMount() {
-    this.setLocalStorageState()
-    this.getData()
-    this.setState({ visualizer: new p5(this.sketch) });
-    this.keyboardEventsHandler()
-
-    this.interval = setInterval(() => {
-      if (this.state.audios[this.state.activeTrack]) {
-        if (this.state.audios[this.state.activeTrack].isPlaying()) {
-          this.setState({ currentMusicTime: parseInt(this.state.audios[this.state.activeTrack].currentTime()) });
-        }
-      }
-    }, 10)
-  }
-
-  componentWillUnmount() {
-    // clearInterval(this.interval)
-  }
-
-
   playlistSwitch = () => {
     if (this.state.activeScreen === "nowPlaying") {
       this.setState({ activeScreen: "playlist" })
@@ -339,8 +397,10 @@ class App extends Component {
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    this.storeState()
+  optionSwitch = () => {
+    this.setState(prevState => {
+      return { displayOptions: !prevState.displayOptions }
+    })
   }
 
   keyboardEventsHandler = () => {
@@ -386,6 +446,32 @@ class App extends Component {
     })
   }
 
+  componentDidMount() {
+    this.setLocalStorageState()
+    this.getData()
+
+    this.setState({
+      visRadius : (this.$visualizer.current.getBoundingClientRect().width *2/3) / 2,
+      visualizer: new p5(this.sketch)
+    })
+    this.keyboardEventsHandler()
+
+    this.interval = setInterval(() => {
+      if (this.state.audios[this.state.activeTrack]) {
+        if (this.state.audios[this.state.activeTrack].isPlaying()) {
+          this.setState({ currentMusicTime: parseInt(this.state.audios[this.state.activeTrack].currentTime()) });
+        }
+      }
+    }, 10)
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval)
+  }
+
+  componentDidUpdate() {
+    this.storeState()
+  }
 
   render() {
     let backgroundImageStyle
@@ -395,7 +481,7 @@ class App extends Component {
     if (this.state.musicData) {
       backgroundImageStyle = {
         'backgroundImage': `url(${this.coverSources[this.state.activeTrack]})`,
-        backgroundSize: 'cover',
+        backgroundSize: 'auto 105%',
         backgroundPosition: 'center center'
       }
       if (this.state.audios[this.state.activeTrack]) {
@@ -425,6 +511,7 @@ class App extends Component {
           <div className="playlistWrap">
             <div className="left">
               <div className="artist">{track.artistName + " - "}</div>
+              <div className="dash">-</div>
               <div className="title">{track.title}</div>
             </div>
             <div className="duration">{this.state.audios[index] ? this.formatTime(this.state.audios[index].duration()) : track.duration}</div>
@@ -447,24 +534,52 @@ class App extends Component {
         </div>
         <div className="musicPlayer">
           <div className="visualizer">
+            {/* dummy div for to replace p5 base loading screen */}
+            <div style={{'display' : 'none'}} id="p5_loading" className="loading">LOADING</div>
+            <div className = {!this.state.fileIsLoaded ? "loadingAnim load-on" : "loadingAnim load-off"}>
+            </div>
             <div ref={this.$visualizer} id="canvasContainer"></div>
             {this.state.fileIsLoaded && this.state.audios[this.state.activeTrack] ?
-              <CSSTransitionGroup
-                transitionName="cover"
-                transitionAppear={true}
-                transitionAppearTimeout={500}
-                transitionEnterTimeout={300}
-                transitionLeaveTimeout={300}
-              >
-                <div key={this.state.activeTrack} style={backgroundImageStyle} className="cover"></div>
-              </CSSTransitionGroup>
-              : <div
-                style={{
-                  'textAlign': 'center',
-                  'color': 'white'
-                }
-                }
-                className="loading">LOADING</div>
+              ( !this.state.displayOptions ?
+                <CSSTransitionGroup
+                  transitionName="cover"
+                  transitionAppear={true}
+                  transitionAppearTimeout={500}
+                  transitionEnterTimeout={500}
+                  transitionLeaveTimeout={300}
+                >
+                  <div onClick={this.optionSwitch} ref={this.$cover} key={this.state.activeTrack} style={backgroundImageStyle} className="cover cover-img"></div>
+                </CSSTransitionGroup>
+                : <div onClick={this.optionSwitch} ref={this.$cover} key={this.state.activeTrack} className="cover cover-options">
+                  <div className="options-wrapper">
+                    <div className="option option-smoothing">
+                      <div className="title">Smoothing</div>
+                      <div className="bar">
+                        <div className="progressBar"></div>
+                        <div className="startValue">0</div>
+                        <div className="endValue">1</div>
+                      </div>
+                    </div>
+                    <div className="option option-size">
+                      <div className="title">Max size</div>
+                      <div className="bar">
+                        <div className="progressBar"></div>
+                        <div className="startValue">120</div>
+                        <div className="endValue">180</div>
+                      </div>
+                    </div>
+                    <div className="option option-freq">
+                      <div className="title">frequency broadness</div>
+                      <div className="bar">
+                        <div className="progressBar"></div>
+                        <div className="startValue">64</div>
+                        <div className="endValue">1024</div>
+                      </div>
+                    </div>   
+                  </div>
+                </div>
+                )
+              : ""
             }
           </div>
           <div className="card">
