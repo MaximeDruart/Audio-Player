@@ -1,19 +1,19 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "e46fe0fff0ddcba6ad7ee073829d379f",
+    "revision": "9420d5ccac450465652e6c02ae227bec",
     "url": "/Audio-Player/index.html"
   },
   {
-    "revision": "5ae3df31ec553fadf3e9",
-    "url": "/Audio-Player/static/css/main.22011fb7.chunk.css"
+    "revision": "4e551083e723dc4c17c0",
+    "url": "/Audio-Player/static/css/main.f9af2639.chunk.css"
   },
   {
     "revision": "4a24a79c8d2812df83dc",
     "url": "/Audio-Player/static/js/2.78752415.chunk.js"
   },
   {
-    "revision": "5ae3df31ec553fadf3e9",
-    "url": "/Audio-Player/static/js/main.32eab047.chunk.js"
+    "revision": "4e551083e723dc4c17c0",
+    "url": "/Audio-Player/static/js/main.6bdb1820.chunk.js"
   },
   {
     "revision": "16695b60b320a0b17aa1",
@@ -40,20 +40,20 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/Audio-Player/static/media/audio04.95225891.mp3"
   },
   {
-    "revision": "1845849d8c594e134d9751475824827a",
-    "url": "/Audio-Player/static/media/cover01.1845849d.jpg"
+    "revision": "a75032b4de66e456f8e9ea83663f1a11",
+    "url": "/Audio-Player/static/media/cover01.a75032b4.jpg"
   },
   {
-    "revision": "19f851082776f337b0e9c33a281889a5",
-    "url": "/Audio-Player/static/media/cover02.19f85108.jpg"
+    "revision": "06a647528b1a7e55221dd5d24b150ca6",
+    "url": "/Audio-Player/static/media/cover02.06a64752.jpg"
   },
   {
-    "revision": "83d85b4c52a71b7557fdb94fd5c28e90",
-    "url": "/Audio-Player/static/media/cover03.83d85b4c.jpg"
+    "revision": "a08f93dac1aa4b2f9666c2319e06af1b",
+    "url": "/Audio-Player/static/media/cover03.a08f93da.jpg"
   },
   {
-    "revision": "b93229bb8b802d4649320e75bde2fc46",
-    "url": "/Audio-Player/static/media/cover04.b93229bb.jpg"
+    "revision": "6130ea1f626125dbe4809b93b4e8cb11",
+    "url": "/Audio-Player/static/media/cover04.6130ea1f.jpg"
   },
   {
     "revision": "40b8652323b437f127f8453d73d09889",

@@ -1,25 +1,25 @@
 {
   "files": {
-    "main.css": "/Audio-Player/static/css/main.22011fb7.chunk.css",
-    "main.js": "/Audio-Player/static/js/main.32eab047.chunk.js",
-    "main.js.map": "/Audio-Player/static/js/main.32eab047.chunk.js.map",
+    "main.css": "/Audio-Player/static/css/main.f9af2639.chunk.css",
+    "main.js": "/Audio-Player/static/js/main.6bdb1820.chunk.js",
+    "main.js.map": "/Audio-Player/static/js/main.6bdb1820.chunk.js.map",
     "runtime-main.js": "/Audio-Player/static/js/runtime-main.f45643d4.js",
     "runtime-main.js.map": "/Audio-Player/static/js/runtime-main.f45643d4.js.map",
     "static/js/2.78752415.chunk.js": "/Audio-Player/static/js/2.78752415.chunk.js",
     "static/js/2.78752415.chunk.js.map": "/Audio-Player/static/js/2.78752415.chunk.js.map",
     "index.html": "/Audio-Player/index.html",
-    "precache-manifest.521fb79324fb873d4a00a9dfec863a85.js": "/Audio-Player/precache-manifest.521fb79324fb873d4a00a9dfec863a85.js",
+    "precache-manifest.fdfffd3b513fcc7e0ee288d8a17a7e93.js": "/Audio-Player/precache-manifest.fdfffd3b513fcc7e0ee288d8a17a7e93.js",
     "service-worker.js": "/Audio-Player/service-worker.js",
-    "static/css/main.22011fb7.chunk.css.map": "/Audio-Player/static/css/main.22011fb7.chunk.css.map",
-    "static/media/App.css": "/Audio-Player/static/media/VCR_OSD_MONO_1.001.5fcd6c65.ttf",
+    "static/css/main.f9af2639.chunk.css.map": "/Audio-Player/static/css/main.f9af2639.chunk.css.map",
+    "static/media/App.scss": "/Audio-Player/static/media/VCR_OSD_MONO_1.001.5fcd6c65.ttf",
     "static/media/audio01.mp3": "/Audio-Player/static/media/audio01.dc170e87.mp3",
     "static/media/audio02.mp3": "/Audio-Player/static/media/audio02.04420354.mp3",
     "static/media/audio03.mp3": "/Audio-Player/static/media/audio03.750bbe23.mp3",
     "static/media/audio04.mp3": "/Audio-Player/static/media/audio04.95225891.mp3",
-    "static/media/cover01.jpg": "/Audio-Player/static/media/cover01.1845849d.jpg",
-    "static/media/cover02.jpg": "/Audio-Player/static/media/cover02.19f85108.jpg",
-    "static/media/cover03.jpg": "/Audio-Player/static/media/cover03.83d85b4c.jpg",
-    "static/media/cover04.jpg": "/Audio-Player/static/media/cover04.b93229bb.jpg",
+    "static/media/cover01.jpg": "/Audio-Player/static/media/cover01.a75032b4.jpg",
+    "static/media/cover02.jpg": "/Audio-Player/static/media/cover02.06a64752.jpg",
+    "static/media/cover03.jpg": "/Audio-Player/static/media/cover03.a08f93da.jpg",
+    "static/media/cover04.jpg": "/Audio-Player/static/media/cover04.6130ea1f.jpg",
     "static/media/music.svg": "/Audio-Player/static/media/music.40b86523.svg",
     "static/media/next.svg": "/Audio-Player/static/media/next.b4705597.svg",
     "static/media/pause.svg": "/Audio-Player/static/media/pause.a83244f8.svg",
@@ -29,7 +29,7 @@
   "entrypoints": [
     "static/js/runtime-main.f45643d4.js",
     "static/js/2.78752415.chunk.js",
-    "static/css/main.22011fb7.chunk.css",
-    "static/js/main.32eab047.chunk.js"
+    "static/css/main.f9af2639.chunk.css",
+    "static/js/main.6bdb1820.chunk.js"
   ]
 }
