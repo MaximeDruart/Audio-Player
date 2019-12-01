@@ -6,7 +6,7 @@ import * as Vibrant from 'node-vibrant'
 
 import Slider from './Slider'
 import musicDataJSON from './musicData.json'
-import './App.css'
+import './App.scss'
 
 import playButton from './svgs/play.svg'
 import pauseButton from './svgs/pause.svg'
@@ -65,14 +65,15 @@ class App extends PureComponent {
     localStorage.setItem('activeTrack', this.state.activeTrack)
   }
 
-  setLocalStorageState = () => {
+  setStateToLocalStorage = () => {
     if (localStorage.getItem('volume') && localStorage.getItem('activeTrack')) {
       this.setState({
         volume: JSON.parse(localStorage.getItem('volume')),
         activeTrack: JSON.parse(localStorage.getItem('activeTrack'))
+      }, () => {
+        if (this.state.audios) this.state.audios.forEach(audio => audio.setVolume(this.state.volume))
       })
     }
-    if (this.state.audios) this.state.audios.forEach(audio => audio.setVolume(this.state.volume))
   }
 
   formatTime = string => {
@@ -112,8 +113,15 @@ class App extends PureComponent {
     }
 
     p.setup = () => {
-      this.getCoverColor()
-      this.setState({ fileIsLoaded: true, audios: this.audios })
+      this.setState({
+        fileIsLoaded: true,
+        audios: this.audios
+      },
+        () => {
+        this.setStateToLocalStorage()
+        this.getCoverColor()
+      })
+
       let { width, height } = this.$visualizer.current.getBoundingClientRect()
       this.setState({
         canvasSize: { width: width, height: height },
@@ -149,7 +157,6 @@ class App extends PureComponent {
         // let cosVal = valueCopy * p.cos(angle)
         // let sinVal = valueCopy * p.sin(angle)
         p.fill(this.state.coverColor)
-        p.noStroke()
         p.push()
         p.rotate(angle)
         p.rect(0, 0, 9, valueCopy)
@@ -208,53 +215,33 @@ class App extends PureComponent {
   }
 
   dragAndDrop = event => {
-    const {target, clientY, clientX} = event
-    const {height, width} = target.getBoundingClientRect()
+    const {currentTarget, clientY, clientX} = event
+    const {height, width, y, x} = currentTarget.getBoundingClientRect()
+    let relativePosX = 1 - ((clientX - x) / width)
+    let relativePosY = 1 - ((clientY - y) / height)
 
     if (event.type === 'mousedown') {
-      this.upDownDelay = new Date()      
-      // waiting for the volume slide animation to end
-      setTimeout(() => {
-        this.setState({ mouseIsDown: true })
-      }, 200)
-
+      this.setState({ mouseIsDown: true })
       this.mouseDragStart = {
         x : clientX,
         y : clientY
       }
-      this.startVolume = this.changeVolume(event)
+      this.setState({ volume : relativePosY },
+      () => {
+        this.state.audios.forEach((audio) => audio.setVolume(this.state.volume))
+        this.startVolume = this.state.volume
+      })
     } else if (event.type === 'mousemove' && this.state.mouseIsDown) {
       this.mouseDragDeltas = {
         x : (this.mouseDragStart.x - (clientX)) / width, 
         y: (this.mouseDragStart.y - (clientY)) / height, 
       }
-      this.setState({ volume: this.startVolume + this.mouseDragDeltas.y })
+      if (this.state.mouseIsDown) this.setState({ volume: this.startVolume + this.mouseDragDeltas.y })
 
     } else if (event.type === 'mouseup' || event.type === 'mouseleave') {
-      // kinda sketchy but it's the simpliest to avoid conflicts with simple click (who fires down and up events in less than .2s)
-      if (new Date()-this.upDownDelay < 300) {
-        setTimeout(() => {
-          this.setState({ mouseIsDown: false })
-        }, 200)
-      } else {
-        this.setState({ mouseIsDown: false })
-      }
+      this.setState({ mouseIsDown: false })
     }
   }
-
-  changeVolume = event => {
-    let { target, clientY } = event
-    let { height, y } = target.getBoundingClientRect()
-    let relativePos = clientY - y
-    relativePos /= height
-    relativePos = 1 - relativePos
-    this.setState({ volume: relativePos })
-    this.state.audios.forEach((audio) => {
-      audio.setVolume(relativePos)
-    })
-    return relativePos
-  }
-
 
   getCoverColor = () => {
     Vibrant.from(this.coverSources[this.state.activeTrack]).getPalette()
@@ -262,8 +249,8 @@ class App extends PureComponent {
   }
 
   changeSongMoment = event => {
-    let { target, clientX } = event
-    let { width, x } = target.getBoundingClientRect()
+    let { currentTarget, clientX } = event
+    let { width, x } = currentTarget.getBoundingClientRect()
     let relativePos = clientX - x
     relativePos /= width
     if (this.state.audios[this.state.activeTrack]) {
@@ -323,7 +310,6 @@ class App extends PureComponent {
   }
 
   keyboardEventsHandler = () => {
-
     window.addEventListener('keydown', event => {
       if (this.state.audios[this.state.activeTrack]) {
         switch (event.code) {
@@ -337,16 +323,16 @@ class App extends PureComponent {
 
           case "ArrowLeft":
             this.changeSong("previous")
-
             break;
 
           case "ArrowUp":
             if (this.state.volume >= 0.95) {
-              this.setState({ volume: 1 });
+              this.setState({ volume: 1 },
+              () => this.state.audios[this.state.activeTrack].setVolume(this.state.volume))
             } else {
               this.setState(prevState => {
-                return { volume: prevState.volume + 0.05 };
-              })
+                return { volume: prevState.volume + 0.05 }
+              }, () => this.state.audios[this.state.activeTrack].setVolume(this.state.volume))
             }
             break;
           case "ArrowDown":
@@ -365,15 +351,16 @@ class App extends PureComponent {
     })
   }
 
-  componentDidMount() {
-    this.setLocalStorageState()
-    this.getData()
+  updateStateFromSlider = (stateProperty, newValue) => {
+    this.setState({ [stateProperty]: newValue })
+  }
 
+  componentDidMount() {
+    this.getData()
     this.setState({
-      visRadius : (this.$visualizer.current.getBoundingClientRect().width *2/3) / 2,
       visualizer: new p5(this.sketch)
-    })
-    this.keyboardEventsHandler()
+    },
+    this.keyboardEventsHandler)
 
     this.interval = setInterval(() => {
       if (this.state.audios[this.state.activeTrack]) {
@@ -385,20 +372,17 @@ class App extends PureComponent {
     this.loadingInterval = setInterval(() => {
       this.increment = this.increment > 3.9 ? 0.8 : this.increment + 0.1
       this.setState({ loadingInc: this.increment });
-    }, 100);
-    if (this.state.fileIsLoaded) clearInterval(this.loadingInterval)
+    }, 100)
   }
 
   componentWillUnmount() {
     clearInterval(this.interval)
+    clearInterval(this.loadingInterval)
   }
 
   componentDidUpdate() {
     this.storeState()
-  }
-
-  updateStateFromSlider = (stateProperty, newValue) => { 
-    this.setState({ [stateProperty]: newValue })
+    if (this.state.fileIsLoaded) clearInterval(this.loadingInterval)
   }
 
   render() {
@@ -424,7 +408,7 @@ class App extends PureComponent {
         soundTransformValue = -(1 - this.state.volume) * 100
         soundStyle = {
           'transform': `rotate(180deg) translateY(${soundTransformValue}%)`,
-          'transition': this.state.mouseIsDown ? 'none' : 'transform 0.2s ease-in-out'
+          'transition': this.state.mouseIsDown ? 'none' : 'all 0.2s ease-in-out'
         }
       }
     }
@@ -604,6 +588,7 @@ class App extends PureComponent {
             }
             <div onClick={this.playlistSwitch} className="playlistSwitch">{this.state.activeScreen === 'nowPlaying' ? "PLAYLIST" : 'PLAYING NOW'}</div>
             <div
+              onClick={this.dragAndDrop}
               onMouseDown = {this.dragAndDrop}
               onMouseUp = {this.dragAndDrop}
               onMouseMove = {this.dragAndDrop}
@@ -612,7 +597,11 @@ class App extends PureComponent {
             >
               <img src={musicSymbol} alt="music symobl" className="volumeIcon"></img>
               <div style={soundStyle} className="volumeProgression">
-                <div className="volumePercentage">{parseInt(this.state.volume * 100)}%</div>
+                <div className="volumePercentage">{
+                (this.state.volume *100) < 10 ?
+                "0"+parseInt(this.state.volume*100)
+                :parseInt(this.state.volume * 100)
+                }%</div>
               </div>
             </div>
           </div>

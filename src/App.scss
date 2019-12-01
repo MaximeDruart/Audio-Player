@@ -251,10 +251,13 @@ $muted-card-font : #AAAAAA;
                 transform: translate(-50%, -50%);
                 width:90px;
                 height:30px;
+
                 border-radius: 15px;
                 background-color: $card-light;
                 transition: left 0.3s ease-in-out 1.5s;
+                box-shadow: 1px 3px 6px rgba(0, 0, 0, 0.2);
                 cursor: pointer;
+
                 display: flex;
                 align-items: center;
                 justify-content: flex-end;
@@ -262,6 +265,7 @@ $muted-card-font : #AAAAAA;
                 &:hover{
                     transition: left 0.3s ease-in-out;
                     left:97%;
+                    background-color: lighten($card-light, 3%);
                 }
 
                 &.switch-appear{
@@ -337,17 +341,26 @@ $muted-card-font : #AAAAAA;
                     width: 95%;
                     height: 20%;
                     user-select: none;
-
+                    
                     .before,
                     .next,
                     .playPause {
+                        transition: transform 0.1s ease-in-out;
                         height: 43px;
                         cursor: pointer;
-                    }
 
+                        &:hover{
+                            transform: scale(1.1);
+                        }
+                    }
+                    
                     .before {
                         transform-origin: center;
                         transform: rotate(180deg);
+
+                        &:hover{
+                            transform: rotate(180deg) scale(1.1);
+                        }
                     }
                 }
             }
@@ -468,8 +481,15 @@ $muted-card-font : #AAAAAA;
                 transform-origin: right;
                 cursor: pointer;
                 color: $card-font;
-                font-size: 22px;
+                font-size: 20px;
                 user-select: none;
+                // background-color: $card-light;
+                // color: $card-font;
+                // width: 116px;
+                // height: 23px;
+                // text-align: center;
+                // border-radius: 12px;
+                // padding:5px;
             }
 
             .volume {
@@ -482,9 +502,16 @@ $muted-card-font : #AAAAAA;
                 background-color: $card-background-light;
                 border-radius: 10px;
                 overflow: hidden;
+                box-shadow: 1px 3px 6px rgba(0, 0, 0, 0.35);
+                cursor: pointer;
+
+                &:hover{
+                    .volumeProgression{
+                        background-color: lighten($card-light, 8%);
+                    }
+                }
 
                 * {
-                    pointer-events: none;
                     user-select: none;
                 }
 
@@ -493,6 +520,7 @@ $muted-card-font : #AAAAAA;
                     margin-top: 5px;
                     margin-left: 2px;
                     pointer-events: none;
+                    transform: rotate(-90deg);
                 }
 
                 .volumeProgression {
@@ -504,6 +532,7 @@ $muted-card-font : #AAAAAA;
                     background-color: $card-light;
                     display: flex;
                     padding-bottom: 12px;
+                    color: $card-font;
 
                     .volumePercentage {
                         align-self: flex-end;
@@ -529,8 +558,13 @@ $muted-card-font : #AAAAAA;
     overflow: hidden;
     cursor: pointer;
 
+    &:hover{
+        .timeProgression{
+            background-color: lighten($card-light, 8%);
+        }
+    }
+
     * {
-        pointer-events: none;
         user-select: none;
     }
 

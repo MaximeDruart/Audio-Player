@@ -5,6 +5,7 @@
   "private": true,
   "dependencies": {
     "gsap": "^3.0.1",
+    "node-sass": "^4.13.0",
     "node-vibrant": "^3.1.4",
     "p5": "^0.10.2",
     "react": "^16.12.0",

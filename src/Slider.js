@@ -11,8 +11,9 @@ class Slider extends Component {
   }
 
   changeValue = event => {
-    let { target, clientX } = event
-    let { width, x } = target.getBoundingClientRect()
+    // current target will be the target that the event listener has been attached to. even if the actual event is one of its children
+    let { currentTarget, clientX } = event
+    let { width, x } = currentTarget.getBoundingClientRect()
     let relativePos = clientX - x
     relativePos /= width
     // audio seekbar is handled separately
