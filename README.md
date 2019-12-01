@@ -1,6 +1,6 @@
-## Audio Player with visualizer :)
+## Audio Player with live visualizer :)
 
-Live version is avaiable [here](https://maximedruart.github.io/Audio-Player/).
+*Live version is available [here](https://maximedruart.github.io/Audio-Player/).*
 
 ### 
 Project is based on React's [Create React App](https://github.com/facebook/create-react-app).<br />
