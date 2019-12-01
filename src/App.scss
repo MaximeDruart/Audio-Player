@@ -85,12 +85,13 @@ $muted-card-font : #AAAAAA;
     }
 
     $player-width : 900px;
-    $player-height:60vh;
+    $player-height:600px;
     $visRadius : 42vh;
 
     .musicPlayer {
         max-width: $player-width;
-        height: 60%;
+        min-width: $player-width;
+        height: $player-height;
         display: grid;
         grid-template-rows: 100%;
         grid-template-columns: repeat(10, 10%);
@@ -291,6 +292,7 @@ $muted-card-font : #AAAAAA;
             grid-row: 1;
             grid-column: 3 / 11;
             height: 60%;
+            width:100%;
             background-color: $card-background;
             border-radius: 20px;
             display: flex;
@@ -307,7 +309,6 @@ $muted-card-font : #AAAAAA;
 
                 .info {
                     width: 100%;
-                    height: 40%;
 
                     .artist,
                     .title,
@@ -592,6 +593,20 @@ $muted-card-font : #AAAAAA;
         border-radius: 20px;
         &.tp-audio{
             transition: all 0.3s ease-in-out;
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .musicPlayer{
+        .card{
+            .flex-wrap{
+                .info{
+                    .title, .artist, .album{
+                        font-size:2em !important;
+                    }
+                }
+            }
         }
     }
 }
