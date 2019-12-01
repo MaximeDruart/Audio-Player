@@ -40,6 +40,13 @@ $muted-card-font : #AAAAAA;
     justify-content: center;
     align-items: center;
 
+    // CSSTransitionGroup wraps its child in spans but it can fuck up my layout sometimes
+    // span {
+    //     width: 100%;
+    //     height: 100%;
+    //     display: block;
+    // }
+
     .background {
         z-index: -10;
         @include fullParentSize();
@@ -117,15 +124,9 @@ $muted-card-font : #AAAAAA;
                 overflow: hidden;
                 width: 100%;
                 height: 100%;
-                transition: all 600ms ease-in-out;
-                cursor: pointer;
-
-                &.cover-img {
-                    // background-size
-                }
+                transition: all 300ms ease-in-out;
 
                 &.cover-options {
-
                     // cursor: default;
                     .options-wrapper {
                         position: absolute;
@@ -138,6 +139,17 @@ $muted-card-font : #AAAAAA;
                         flex-flow: column nowrap;
                         justify-content: space-around;
                         align-items: center;
+                        transition : all 0.3s ease-in-out;
+                        
+                        &.options-appear {
+                            transform : translate(-50%, -50%) scale(0.9);
+                            opacity : 0;
+    
+                            &.options-appear-active {
+                                transform : translate(-50%, -50%) scale(1);
+                                opacity : 1;
+                            }
+                        }
 
                         .option {
                             width: 80%;
@@ -174,8 +186,8 @@ $muted-card-font : #AAAAAA;
                     height: 5%;
 
                     &.cover-appear-active {
-                        width: 70%;
-                        height: 70%;
+                        width: 100%;
+                        height: 100%;
                     }
                 }
 
@@ -184,14 +196,14 @@ $muted-card-font : #AAAAAA;
                     height: 5%;
 
                     &.cover-enter-active {
-                        width: 70%;
-                        height: 70%;
+                        width: 100%;
+                        height: 100%;
                     }
                 }
 
                 &.cover-leave {
-                    width: 70%;
-                    height: 70%;
+                    width: 100%;
+                    height: 100%;
 
                     &.cover-leave-active {
                         width: 5%;
@@ -202,8 +214,8 @@ $muted-card-font : #AAAAAA;
 
             @keyframes loading {
                 to {
-                    width: 40%;
-                    height: 40%;
+                    width: 60%;
+                    height: 60%;
                     opacity: 1;
                 }
             }
@@ -215,8 +227,8 @@ $muted-card-font : #AAAAAA;
                 transform: translate(-50%, -50%);
                 border-radius: 50%;
                 overflow: hidden;
-                width: 20%;
-                height: 20%;
+                width: 30%;
+                height: 30%;
                 transition: all 600ms ease-in-out;
                 background-color: $dark-blue;
                 opacity: 0.7;
@@ -228,6 +240,43 @@ $muted-card-font : #AAAAAA;
                 &.load-off {
                     width: 0;
                     height: 0;
+                }
+            }
+
+            .optionSwitchButton{
+                z-index: -1;
+                position: absolute;
+                bottom:12%;
+                left:94%;
+                transform: translate(-50%, -50%);
+                width:90px;
+                height:30px;
+                border-radius: 15px;
+                background-color: $card-light;
+                transition: left 0.3s ease-in-out 1.5s;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+
+                &:hover{
+                    transition: left 0.3s ease-in-out;
+                    left:97%;
+                }
+
+                &.switch-appear{
+                    opacity: 0;
+                    left:80%;
+                    &.switch-appear-active{
+                        opacity: 1;
+                        left:90%;
+                    }
+                }
+
+                img{
+                    margin-right: 3%;
+                    height:70%;
+                    user-select: none;
                 }
             }
         }
@@ -311,25 +360,17 @@ $muted-card-font : #AAAAAA;
                 height: 80%;
                 width: 100%;
                 color: $card-font;
+                transition: 0.3s all ease-in-out;
 
-                &.playlist-pop-enter {
-                    opacity: 0.01;
+                &.pop-appear {
+                    transform: scale(0.9);
+                    opacity: 0;
 
-                    &.playlist-pop-enter-active {
+                    &.pop-appear-active {
+                        transform: scale(1);
                         opacity: 1;
-                        transition: opacity 500ms ease-in-out;
                     }
                 }
-
-                &.playlist-pop-leave {
-                    opacity: 1;
-
-                    &.playlist-pop-leave-active {
-                        opacity: 0.01;
-                        transition: opacity 500ms ease-in-out;
-                    }
-                }
-
 
                 .playlistElement {
                     display: flex;

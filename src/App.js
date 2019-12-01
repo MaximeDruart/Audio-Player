@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import { CSSTransitionGroup } from 'react-transition-group'
 import p5 from 'p5'
 import 'p5/lib/addons/p5.sound'
@@ -12,6 +12,7 @@ import playButton from './svgs/play.svg'
 import pauseButton from './svgs/pause.svg'
 import musicSymbol from './svgs/music.svg'
 import nextSymbol from './svgs/next.svg'
+import settings from './svgs/settings.svg'
 import cover1 from './covers/cover01.jpg'
 import cover2 from './covers/cover02.jpg'
 import cover3 from './covers/cover03.jpg'
@@ -20,9 +21,8 @@ import audio1 from './audios/audio01.mp3'
 import audio2 from './audios/audio02.mp3'
 import audio3 from './audios/audio03.mp3'
 import audio4 from './audios/audio04.mp3'
-// import * as gsap from 'gsap/all'
 
-class App extends Component {
+class App extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -44,12 +44,11 @@ class App extends Component {
       mouseIsDown : false,
       smoothing : 0.8,
       samples : 256,
-      amplitude : 0.4
+      amplitude : 0.4,
     }
     this.smoothingSave = this.state.smoothing
     this.samplesSave = this.state.samples
     this.$visualizer = React.createRef()
-    this.$cover = React.createRef()
     this.audios = []
     this.covers = []
     this.coverSources = [cover1, cover2, cover3, cover4]
@@ -58,6 +57,7 @@ class App extends Component {
     this.mouseDragStart = {}
     this.mouseDragDeltas= {}
     this.startVolume = this.state.volume
+    this.increment = 0.5
   }
 
   storeState = () => {
@@ -189,25 +189,20 @@ class App extends Component {
       trackNumber = this.state.activeTrack
     } else {
       trackNumber = trackNbParam
-      this.setState({ activeTrack: trackNbParam });
+      let previousTrack = this.state.activeTrack
+      this.setState({ activeTrack: trackNbParam }, () => {
+        this.getCoverColor()
+        if (previousTrack !== this.state.activeTrack) this.state.audios[previousTrack].stop()
+      })
     }
-    this.state.audios.forEach((audio, index) => {
-      if (index !== trackNumber) {
-        audio.jump(0)
-        audio.stop()
-      }
-    })
     if (this.state.fileIsLoaded && this.state.audios[trackNumber]) {
       if (this.state.audios[trackNumber].isPlaying()) {
         this.state.audios[trackNumber].pause()
-        this.setState(prevState => {
-          return { audios: prevState.audios };
-        });
+        // we have to force update as pausing the track doesnt' re render the dom so we're still on the play icon
+        this.forceUpdate() 
       } else {
         this.state.audios[trackNumber].play()
-        this.setState(prevState => {
-          return { audios: prevState.audios };
-        });
+        this.forceUpdate() 
       }
     }
   }
@@ -296,38 +291,21 @@ class App extends Component {
     this.setState(prevState => {
       if (canChangePrevious) {
         return { activeTrack: prevState.activeTrack - 1 }
-      } else if (this.state.musicData) {
-        if (canChangeNext) {
-          return { activeTrack: prevState.activeTrack + 1 }
-        }
+      } else if (canChangeNext) {
+        return { activeTrack: prevState.activeTrack + 1 } 
       }
-    })
-
-    // c'est ghetto mais jsp pas pourquoi il y a un délai sur la modif de state au dessus
-    setTimeout(() => {
-      if (canChangeNext || canChangePrevious) {
-        this.getCoverColor()
-        this.state.audios.forEach((audio, index) => {
+    }, () => {
+        if (canChangeNext || canChangePrevious) {
+          this.getCoverColor()
           if (canChangeNext) {
-            if (index !== this.state.activeTrack) {
-              audio.jump(0)
-              audio.stop()
-            } else {
-              audio.jump(0)
-              audio.fade(this.state.volume, 5)
-            }
+            this.state.audios[this.state.activeTrack-1].stop()
+            this.state.audios[this.state.activeTrack].play()
           } else if (canChangePrevious) {
-            if (index !== this.state.activeTrack) {
-              audio.jump(0)
-              audio.stop()
-            } else {
-              audio.jump(0)
-              audio.fade(this.state.volume, 5)
-            }
+            this.state.audios[this.state.activeTrack + 1].stop()
+            this.state.audios[this.state.activeTrack].play()
           }
-        })
-      }
-    }, 150);
+        }
+    })
   }
 
   playlistSwitch = () => {
@@ -339,12 +317,9 @@ class App extends Component {
   }
 
   optionSwitch = event => {
-    if (event.target.classList.contains('cover')) {
-      this.setState(prevState => {
-        return { displayOptions: !prevState.displayOptions }
-      })
-    }
-    
+    this.setState(prevState => {
+      return { displayOptions: !prevState.displayOptions }
+    })
   }
 
   keyboardEventsHandler = () => {
@@ -407,6 +382,11 @@ class App extends Component {
         }
       }
     }, 10)
+    this.loadingInterval = setInterval(() => {
+      this.increment = this.increment > 3.9 ? 0.8 : this.increment + 0.1
+      this.setState({ loadingInc: this.increment });
+    }, 100);
+    if (this.state.fileIsLoaded) clearInterval(this.loadingInterval)
   }
 
   componentWillUnmount() {
@@ -489,65 +469,95 @@ class App extends Component {
           <div className="visualizer">
             {/* dummy div for to replace p5 base loading screen */}
             <div style={{'display' : 'none'}} id="p5_loading" className="loading">LOADING</div>
-            <div className = {!this.state.fileIsLoaded ? "loadingAnim load-on" : "loadingAnim load-off"}>
-            </div>
+            <div className = {!this.state.fileIsLoaded ? "loadingAnim load-on" : "loadingAnim load-off"}></div>
             <div ref={this.$visualizer} id="canvasContainer"></div>
             {this.state.fileIsLoaded && this.state.audios[this.state.activeTrack] ?
               ( !this.state.displayOptions ?
                 <CSSTransitionGroup
                   transitionName="cover"
                   transitionAppear={true}
-                  transitionAppearTimeout={500}
-                  transitionEnterTimeout={500}
+                  transitionAppearTimeout={300}
+                  transitionEnterTimeout={300}
                   transitionLeaveTimeout={300}
                 >
-                  <div onClick={this.optionSwitch} ref={this.$cover} key={this.state.activeTrack} style={backgroundImageStyleCover} className="cover cover-img"></div>
+                  <div key={this.state.activeTrack} style={backgroundImageStyleCover} className="cover cover-img"></div>
                 </CSSTransitionGroup>
-                : <div onClick={this.optionSwitch} ref={this.$cover} key={this.state.activeTrack} className="cover cover-options">
-                  <div className="options-wrapper">
-                    <div className="option">
-                      <div className="option-txt">smoothing</div>
-                      <Slider
-                        startValue={0}
-                        endValue={1}
-                        stateProperty={'smoothing'}
-                        currentValue={this.state.smoothing}
-                        changeHandler={this.updateStateFromSlider}
-                      ></Slider>
+                : <div className="cover cover-options">
+                  <CSSTransitionGroup
+                    transitionName="options"
+                    transitionAppear={true}
+                    transitionAppearTimeout={300}
+                    transitionEnterTimeout={300}
+                    transitionLeaveTimeout={300}
+                  >   
+                    <div key={this.state.activeTrack} className="options-wrapper">
+                      <div className="option">
+                        <div className="option-txt">smoothing</div>
+                        <Slider
+                          startValue={0}
+                          endValue={1}
+                          stateProperty={'smoothing'}
+                          currentValue={this.state.smoothing}
+                          changeHandler={this.updateStateFromSlider}
+                          ></Slider>
+                      </div>
+                      <div className="option">
+                        <div className="option-txt">Samples</div>
+                        <Slider
+                          startValue={64}
+                          endValue={1024}
+                          stateProperty={'samples'}
+                          currentValue={this.state.samples}
+                          changeHandler={this.updateStateFromSlider}
+                          ></Slider>
+                      </div>
+                      <div className="option">
+                        <div className="option-txt">Amplitude</div>
+                        <Slider
+                          startValue={0.3}
+                          endValue={0.6}
+                          stateProperty={'amplitude'}
+                          currentValue={this.state.amplitude}
+                          changeHandler={this.updateStateFromSlider}
+                        ></Slider>
+                      </div>
                     </div>
-                    <div className="option">
-                      <div className="option-txt">Samples</div>
-                      <Slider
-                        startValue={64}
-                        endValue={1024}
-                        stateProperty={'samples'}
-                        currentValue={this.state.samples}
-                        changeHandler={this.updateStateFromSlider}
-                      ></Slider>
-                    </div>
-                    <div className="option">
-                      <div className="option-txt">Amplitude</div>
-                      <Slider
-                        startValue={0.3}
-                        endValue={0.6}
-                        stateProperty={'amplitude'}
-                        currentValue={this.state.amplitude}
-                        changeHandler={this.updateStateFromSlider}
-                      ></Slider>
-                    </div>
-                  </div>
+                  </CSSTransitionGroup>  
                 </div>
-                )
+              )
+              
               : ""
+            }{this.state.fileIsLoaded && this.state.audios[this.state.activeTrack] ?
+              <CSSTransitionGroup
+                transitionName="switch"
+                transitionAppear = {true}
+                transitionAppearTimeout={300}
+                transitionEnterTimeout={300}
+                transitionLeaveTimeout={300}
+              >
+                <div key={this.state.activeTrack} onClick={this.optionSwitch} className="optionSwitchButton">
+                  <img src={settings} alt="settings"/>
+                </div>      
+              </CSSTransitionGroup>
+              : "" 
             }
           </div>
           <div className="card">
             {this.state.activeScreen === "nowPlaying" ?
               <div className="flex-wrap">
                 <div className="info">
-                  <div className="artist">{this.state.musicData ? this.state.musicData[this.state.activeTrack].artistName : "artist"}</div>
-                  <div className="album">{this.state.musicData ? this.state.musicData[this.state.activeTrack].album : "album"}</div>
-                  <div className="title">{this.state.musicData ? this.state.musicData[this.state.activeTrack].title : "title"}</div>
+                  <div className="artist"> {this.state.fileIsLoaded ?
+                  this.state.musicData[this.state.activeTrack].artistName
+                  : `loading${".".repeat(parseInt(this.state.loadingInc))}`
+                  }</div>
+                  <div className="album">{this.state.fileIsLoaded ?
+                    this.state.musicData[this.state.activeTrack].album
+                    : "uwu"
+                  }</div>
+                  <div className="title">{this.state.fileIsLoaded ?
+                    this.state.musicData[this.state.activeTrack].title
+                    : "please wait"
+                  }</div>
                 </div>
                 <div className="controls">
                   <img
@@ -583,12 +593,13 @@ class App extends Component {
               </div>
               : renderedPlaylist ?
                 // <CSSTransitionGroup
-                //     transitionName = "playlist-pop"
-                //     transitionEnterTimeout={500}
-                //     transitionLeaveTimeout={300}
-                // >
-                <div key={this.state.activeTrack} className="playlist">{renderedPlaylist}</div>
+                //     transitionName = "pop"
+                //     transitionAppear={true}
+                //     transitionAppearTimeout={300}
+                //     transitionEnterTimeout={300}
+                //     transitionLeaveTimeout={300}>
                 // </CSSTransitionGroup>
+                <div key={this.state.activeTrack} className="playlist">{renderedPlaylist}</div>
                 : "loading"
             }
             <div onClick={this.playlistSwitch} className="playlistSwitch">{this.state.activeScreen === 'nowPlaying' ? "PLAYLIST" : 'PLAYING NOW'}</div>

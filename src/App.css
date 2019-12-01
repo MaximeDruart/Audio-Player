@@ -79,8 +79,7 @@ body {
         overflow: hidden;
         width: 100%;
         height: 100%;
-        transition: all 600ms ease-in-out;
-        cursor: pointer; }
+        transition: all 300ms ease-in-out; }
         .container .musicPlayer .visualizer .cover.cover-options .options-wrapper {
           position: absolute;
           top: 50%;
@@ -91,7 +90,14 @@ body {
           display: flex;
           flex-flow: column nowrap;
           justify-content: space-around;
-          align-items: center; }
+          align-items: center;
+          transition: all 0.3s ease-in-out; }
+          .container .musicPlayer .visualizer .cover.cover-options .options-wrapper.options-appear {
+            transform: translate(-50%, -50%) scale(0.9);
+            opacity: 0; }
+            .container .musicPlayer .visualizer .cover.cover-options .options-wrapper.options-appear.options-appear-active {
+              transform: translate(-50%, -50%) scale(1);
+              opacity: 1; }
           .container .musicPlayer .visualizer .cover.cover-options .options-wrapper .option {
             width: 80%;
             height: 22%;
@@ -116,24 +122,24 @@ body {
           width: 5%;
           height: 5%; }
           .container .musicPlayer .visualizer .cover.cover-appear.cover-appear-active {
-            width: 70%;
-            height: 70%; }
+            width: 100%;
+            height: 100%; }
         .container .musicPlayer .visualizer .cover.cover-enter {
           width: 5%;
           height: 5%; }
           .container .musicPlayer .visualizer .cover.cover-enter.cover-enter-active {
-            width: 70%;
-            height: 70%; }
+            width: 100%;
+            height: 100%; }
         .container .musicPlayer .visualizer .cover.cover-leave {
-          width: 70%;
-          height: 70%; }
+          width: 100%;
+          height: 100%; }
           .container .musicPlayer .visualizer .cover.cover-leave.cover-leave-active {
             width: 5%;
             height: 5%; }
 @keyframes loading {
   to {
-    width: 40%;
-    height: 40%;
+    width: 60%;
+    height: 60%;
     opacity: 1; } }
       .container .musicPlayer .visualizer .loadingAnim {
         position: absolute;
@@ -142,8 +148,8 @@ body {
         transform: translate(-50%, -50%);
         border-radius: 50%;
         overflow: hidden;
-        width: 20%;
-        height: 20%;
+        width: 30%;
+        height: 30%;
         transition: all 600ms ease-in-out;
         background-color: #191A23;
         opacity: 0.7; }
@@ -152,6 +158,34 @@ body {
         .container .musicPlayer .visualizer .loadingAnim.load-off {
           width: 0;
           height: 0; }
+      .container .musicPlayer .visualizer .optionSwitchButton {
+        z-index: -1;
+        position: absolute;
+        bottom: 12%;
+        left: 94%;
+        transform: translate(-50%, -50%);
+        width: 90px;
+        height: 30px;
+        border-radius: 15px;
+        background-color: #6D7C8E;
+        transition: left 0.3s ease-in-out 1.5s;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end; }
+        .container .musicPlayer .visualizer .optionSwitchButton:hover {
+          transition: left 0.3s ease-in-out;
+          left: 97%; }
+        .container .musicPlayer .visualizer .optionSwitchButton.switch-appear {
+          opacity: 0;
+          left: 80%; }
+          .container .musicPlayer .visualizer .optionSwitchButton.switch-appear.switch-appear-active {
+            opacity: 1;
+            left: 90%; }
+        .container .musicPlayer .visualizer .optionSwitchButton img {
+          margin-right: 3%;
+          height: 70%;
+          user-select: none; }
     .container .musicPlayer .card {
       position: relative;
       padding-left: 28vh;
@@ -215,17 +249,14 @@ body {
         align-items: flex-start;
         height: 80%;
         width: 100%;
-        color: #DFDFDF; }
-        .container .musicPlayer .card .playlist.playlist-pop-enter {
-          opacity: 0.01; }
-          .container .musicPlayer .card .playlist.playlist-pop-enter.playlist-pop-enter-active {
-            opacity: 1;
-            transition: opacity 500ms ease-in-out; }
-        .container .musicPlayer .card .playlist.playlist-pop-leave {
-          opacity: 1; }
-          .container .musicPlayer .card .playlist.playlist-pop-leave.playlist-pop-leave-active {
-            opacity: 0.01;
-            transition: opacity 500ms ease-in-out; }
+        color: #DFDFDF;
+        transition: 0.3s all ease-in-out; }
+        .container .musicPlayer .card .playlist.pop-appear {
+          transform: scale(0.9);
+          opacity: 0; }
+          .container .musicPlayer .card .playlist.pop-appear.pop-appear-active {
+            transform: scale(1);
+            opacity: 1; }
         .container .musicPlayer .card .playlist .playlistElement {
           display: flex;
           flex-flow: row nowrap;
