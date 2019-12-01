@@ -215,29 +215,24 @@ class App extends PureComponent {
   }
 
   dragAndDrop = event => {
-    const {currentTarget, clientY, clientX} = event
-    const {height, width, y, x} = currentTarget.getBoundingClientRect()
-    let relativePosX = 1 - ((clientX - x) / width)
-    let relativePosY = 1 - ((clientY - y) / height)
+    const {currentTarget, clientY} = event
+    const {height, y} = currentTarget.getBoundingClientRect()
+    let relativePos = 1 - ((clientY - y) / height)
 
     if (event.type === 'mousedown') {
       this.setState({ mouseIsDown: true })
-      this.mouseDragStart = {
-        x : clientX,
-        y : clientY
-      }
-      this.setState({ volume : relativePosY },
+      this.mouseDragStart = clientY
+      this.setState({ volume : relativePos },
       () => {
         this.state.audios.forEach((audio) => audio.setVolume(this.state.volume))
         this.startVolume = this.state.volume
       })
     } else if (event.type === 'mousemove' && this.state.mouseIsDown) {
-      this.mouseDragDeltas = {
-        x : (this.mouseDragStart.x - (clientX)) / width, 
-        y: (this.mouseDragStart.y - (clientY)) / height, 
-      }
-      if (this.state.mouseIsDown) this.setState({ volume: this.startVolume + this.mouseDragDeltas.y })
+      this.mouseDragDeltas = (this.mouseDragStart - (clientY)) / height
 
+      this.setState({ volume: this.startVolume + this.mouseDragDeltas },
+      () => this.state.audios.forEach((audio) => audio.setVolume(this.state.volume)))
+      
     } else if (event.type === 'mouseup' || event.type === 'mouseleave') {
       this.setState({ mouseIsDown: false })
     }
@@ -431,8 +426,10 @@ class App extends PureComponent {
               <div className="dash">-</div>
               <div className="title">{track.title}</div>
             </div>
-            <div className="duration">{this.state.audios[index] ? this.formatTime(this.state.audios[index].duration()) : track.duration}</div>
-            {(index === this.state.activeTrack) ? <div style={cmtWidthStyle} className="timeProgression"></div> : ""}
+            <div className="duration">
+              {this.state.audios[index] ? this.formatTime(this.state.audios[index].duration()) : track.duration}
+            </div>
+            {index === this.state.activeTrack && <div style={cmtWidthStyle} className="timeProgression"></div>}
           </div>
         </div>
       )
@@ -455,7 +452,7 @@ class App extends PureComponent {
             <div style={{'display' : 'none'}} id="p5_loading" className="loading">LOADING</div>
             <div className = {!this.state.fileIsLoaded ? "loadingAnim load-on" : "loadingAnim load-off"}></div>
             <div ref={this.$visualizer} id="canvasContainer"></div>
-            {this.state.fileIsLoaded && this.state.audios[this.state.activeTrack] ?
+            {this.state.fileIsLoaded && this.state.audios[this.state.activeTrack] &&
               ( !this.state.displayOptions ?
                 <CSSTransitionGroup
                   transitionName="cover"
@@ -509,9 +506,7 @@ class App extends PureComponent {
                   </CSSTransitionGroup>  
                 </div>
               )
-              
-              : ""
-            }{this.state.fileIsLoaded && this.state.audios[this.state.activeTrack] ?
+            }{this.state.fileIsLoaded && this.state.audios[this.state.activeTrack] &&
               <CSSTransitionGroup
                 transitionName="switch"
                 transitionAppear = {true}
@@ -523,7 +518,6 @@ class App extends PureComponent {
                   <img src={settings} alt="settings"/>
                 </div>      
               </CSSTransitionGroup>
-              : "" 
             }
           </div>
           <div className="card">
@@ -607,7 +601,7 @@ class App extends PureComponent {
           </div>
         </div>
       </div>
-    );
+    )
   }
 }
 

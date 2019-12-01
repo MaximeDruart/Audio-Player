@@ -573,6 +573,7 @@ $muted-card-font : #AAAAAA;
         color: $card-font;
         z-index: 10;
         font-size: 21px;
+        pointer-events: none;
     }
 
     .currentTime {
@@ -589,6 +590,8 @@ $muted-card-font : #AAAAAA;
         width: 0%;
         background-color: $card-light;
         border-radius: 20px;
-        transition: all 0.3s ease-in-out;
+        &.tp-audio{
+            transition: all 0.3s ease-in-out;
+        }
     }
 }
